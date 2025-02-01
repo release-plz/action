@@ -24,8 +24,8 @@ inputs:
     description: "Deprecated. Use `manifest_path` instead."
     required: false
   version:
-    description: "Release-plz version to use. (Default: `0.3.114`)."
-    default: "0.3.114"
+    description: "Release-plz version to use. (Default: `0.3.116`)."
+    default: "0.3.116"
     required: false
   token:
     description: "Token used to publish to the cargo registry"
