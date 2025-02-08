@@ -57,7 +57,7 @@ runs:
     - name: Install binaries
       uses: taiki-e/install-action@v2
       with:
-        tool: cargo-semver-checks@0.38, release-plz@${{ inputs.version }}
+        tool: cargo-semver-checks@0.39, release-plz@${{ inputs.version }}
     - name: Configure git user from GitHub token
       uses: MarcoIeni/git-config@v0.1
     - name: Run release-plz
