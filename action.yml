@@ -30,6 +30,9 @@ inputs:
   token:
     description: "Token used to publish to the cargo registry"
     required: false
+  verbose:
+    description: "Print module and source location in logs."
+    required: false
 outputs:
   # Useful for when https://github.com/release-plz/release-plz/issues/1029 is implemented.
   # For now, it just returns an array with `pr` in it.
@@ -71,6 +74,13 @@ runs:
             CONFIG_PATH=("--config" "${{ inputs.config }}")
         else
             CONFIG_PATH=()
+        fi
+
+        if [[ -n "${{ inputs.verbose }}" ]]
+        then
+            VERBOSE=("-v")
+        else
+            VERBOSE=()
         fi
 
         if [[ -n "${{ inputs.token }}" ]]
@@ -119,6 +129,7 @@ runs:
                 "${ALT_REGISTRY[@]}"\
                 "${MANIFEST_PATH[@]}"\
                 "${BACKEND[@]}"\
+                "${VERBOSE[@]}"\
                 -o json)
             echo "release_pr_output: $release_pr_output"
             prs=$(echo $release_pr_output | jq -c .prs)
@@ -145,6 +156,7 @@ runs:
                 "${MANIFEST_PATH[@]}"\
                 "${BACKEND[@]}"\
                 "${TOKEN[@]}"\
+                "${VERBOSE[@]}"\
                 -o json)
             echo "release_output: $release_output"
             releases=$(echo $release_output | jq -c .releases)
