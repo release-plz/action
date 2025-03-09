@@ -33,6 +33,9 @@ inputs:
   verbose:
     description: "Print module and source location in logs."
     required: false
+  repo:
+    description: "The GitHub org/repo. This is used to ensure release-plz doesn't run in forks."
+    required: true
 outputs:
   # Useful for when https://github.com/release-plz/release-plz/issues/1029 is implemented.
   # For now, it just returns an array with `pr` in it.
@@ -67,6 +70,12 @@ runs:
       id: release-plz
       shell: bash
       run: |
+        if [[ -n "${{ inputs.repo }}" != "${{ github.repository_owner }}/${{ github.repository }}" ]]
+        then
+            echo "current repo ('${{ github.repository_owner }}/${{ github.repository }}') does not match config repo ID '${{ inputs.repo }}'. aborting."
+            exit 0;
+        fi
+
         if [[ -n "${{ inputs.config }}" ]]
         then
             echo "using config from '${{ inputs.config }}'"
