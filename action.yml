@@ -24,8 +24,8 @@ inputs:
     description: "Deprecated. Use `manifest_path` instead."
     required: false
   version:
-    description: "Release-plz version to use. (Default: `0.3.125`)."
-    default: "0.3.125"
+    description: "Release-plz version to use. (Default: `0.3.126`)."
+    default: "0.3.126"
     required: false
   token:
     description: "Token used to publish to the cargo registry"
@@ -60,7 +60,7 @@ runs:
     - name: Install binaries
       uses: taiki-e/install-action@v2
       with:
-        tool: cargo-semver-checks@0.39, release-plz@${{ inputs.version }}
+        tool: cargo-semver-checks@0.40, release-plz@${{ inputs.version }}
     - name: Configure git user from GitHub token
       uses: release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
     - name: Run release-plz
