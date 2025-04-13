@@ -11,8 +11,12 @@ inputs:
   config:
     description: "Config file location. If not present, the default 'release-plz.toml' is used."
     required: false
+  forge:
+    description: "Git forge/backend. Valid values: 'github', 'gitea'"
+    default: "github"
+    required: false
   backend:
-    description: "Forge backend. Valid values: 'github', 'gitea'"
+    description: "Supported for backward compatibility. Use 'forge' instead."
     default: "github"
     required: false
   manifest_path:
@@ -91,12 +95,17 @@ runs:
             TOKEN=()
         fi
 
-        if [[ -n "${{ inputs.backend }}" ]]
+        if [[ -n "${{ inputs.forge }}" ]]
         then
-          echo "using backend '${{ inputs.backend }}'"
-          BACKEND=("--backend" "${{ inputs.backend }}")
+          echo "Using forge '${{ inputs.forge }}'"
+          FORGE=("--forge" "${{ inputs.forge }}")
+        elif [[ -n "${{ inputs.backend }}" ]]
+        then
+          echo "'backend' input is supported for backward compatibilty. Use 'forge' instead."
+          echo "Using backend '${{ inputs.backend }}'"
+          FORGE=("--forge" "${{ inputs.backend }}")
         else
-          BACKEND=()
+          FORGE=()
         fi
 
         if [[ -n "${{ inputs.registry }}" ]]
@@ -128,7 +137,7 @@ runs:
                 "${CONFIG_PATH[@]}"\
                 "${ALT_REGISTRY[@]}"\
                 "${MANIFEST_PATH[@]}"\
-                "${BACKEND[@]}"\
+                "${FORGE[@]}"\
                 "${VERBOSE[@]}"\
                 -o json)
             echo "release_pr_output: $release_pr_output"
@@ -154,7 +163,7 @@ runs:
                 "${CONFIG_PATH[@]}"\
                 "${ALT_REGISTRY[@]}"\
                 "${MANIFEST_PATH[@]}"\
-                "${BACKEND[@]}"\
+                "${FORGE[@]}"\
                 "${TOKEN[@]}"\
                 "${VERBOSE[@]}"\
                 -o json)
