@@ -101,7 +101,7 @@ runs:
           FORGE=("--forge" "${{ inputs.forge }}")
         elif [[ -n "${{ inputs.backend }}" ]]
         then
-          echo "'backend' input is supported for backward compatibilty. Use 'forge' instead."
+          echo "'backend' input is supported for backward compatibility. Use 'forge' instead."
           echo "Using backend '${{ inputs.backend }}'"
           FORGE=("--forge" "${{ inputs.backend }}")
         else
