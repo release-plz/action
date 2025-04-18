@@ -35,9 +35,10 @@ inputs:
     required: false
   dry_run:
     description:
-      "Do a `--dry-run`. Only applicable for the command `release`.
+      "Add the `--dry-run` flag to the `release` command.
       If the input `command` is left unspecified (and so both `release` and `release-pr` are ran),
-      only the `release` part will be ran with `--dry-run`.
+      the `--dry-run` flag is only added to the `release` command
+      (the flag isn't added to the `release-pr` command).
       Useful if you're only interested in whether or not a release (pr) would be created."
     required: false
 outputs:
