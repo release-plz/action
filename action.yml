@@ -38,7 +38,7 @@ inputs:
     description: "Print module and source location in logs."
     required: false
   # Minimal git config is needed for release-plz to work. If you switch this off on non-github
-  # platforms, you are needed to externally provide this configuration e.g: OleksiyRudenko/gha-git-credentials
+  # platforms, you need to externally provide this configuration e.g: OleksiyRudenko/gha-git-credentials
   git_config:
     description: "GitHub only, configure git user/email from GITHUB_TOKEN"
     default: true
