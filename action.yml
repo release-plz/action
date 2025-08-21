@@ -140,7 +140,6 @@ runs:
             echo "-- Running release-plz release-pr --"
             release_pr_output=$(release-plz release-pr\
                 --git-token "${GITHUB_TOKEN}"\
-                --repo-url "https://github.com/${GITHUB_REPOSITORY}"\
                 "${CONFIG_PATH[@]}"\
                 "${ALT_REGISTRY[@]}"\
                 "${MANIFEST_PATH[@]}"\
