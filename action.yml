@@ -37,6 +37,12 @@ inputs:
   verbose:
     description: "Print module and source location in logs."
     required: false
+  # Minimal git config is needed for release-plz to work. If you switch this off on non-github
+  # platforms, you are needed to externally provide this configuration e.g: OleksiyRudenko/gha-git-credentials
+  git_config:
+    description: "GitHub only, configure git user/email from GITHUB_TOKEN"
+    default: true
+    required: false
 outputs:
   # Useful for when https://github.com/release-plz/release-plz/issues/1029 is implemented.
   # For now, it just returns an array with `pr` in it.
@@ -66,6 +72,7 @@ runs:
       with:
         tool: cargo-semver-checks@0.43, release-plz@${{ inputs.version }}
     - name: Configure git user from GitHub token
+      if: ${{ inputs.git_config == 'true' }}
       uses: https://github.com/release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
     - name: Run release-plz
       id: release-plz
