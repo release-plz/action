@@ -62,11 +62,11 @@ runs:
   using: "composite"
   steps:
     - name: Install binaries
-      uses: taiki-e/install-action@v2
+      uses: https://github.com/taiki-e/install-action@v2
       with:
         tool: cargo-semver-checks@0.43, release-plz@${{ inputs.version }}
     - name: Configure git user from GitHub token
-      uses: release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
+      uses: https://github.com/release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
     - name: Run release-plz
       id: release-plz
       shell: bash
