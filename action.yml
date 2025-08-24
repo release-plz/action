@@ -39,7 +39,7 @@ inputs:
     required: false
   git_config:
     description:
-      "Configure git user/email from GITHUB_TOKEN.
+      "Configure git user/email automatically from GITHUB_TOKEN.
       Minimal git config is needed for release-plz to work. On non-github platforms like Gitea or
       Forgejo/Act, you are needed to switch `git_config` off and externally provide a valid git
       configuration yourself. For example, you can use OleksiyRudenko/gha-git-credentials for this."
