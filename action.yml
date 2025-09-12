@@ -64,7 +64,10 @@ runs:
     - name: Install binaries
       uses: taiki-e/install-action@v2
       with:
-        tool: cargo-semver-checks@0.43, release-plz@${{ inputs.version }}
+        tool: cargo-semver-checks@0.43
+    - name: Install release-plz
+      run: |
+        cargo install --git https://github.com/release-plz/release-plz.git --branch trusted-publishing-impl release-plz
     - name: Configure git user from GitHub token
       uses: release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
     - name: Run release-plz
