@@ -68,7 +68,7 @@ runs:
     - name: Install release-plz
       shell: bash
       run: |
-        cargo install --git https://github.com/release-plz/release-plz.git --branch trusted-publishing-impl release-plz
+        cargo install --git https://github.com/release-plz/release-plz.git --branch issue-trusted-publishing-token-once release-plz
     - name: Configure git user from GitHub token
       uses: release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
     - name: Run release-plz
