@@ -24,6 +24,8 @@ jobs:
           cd .github/workflows/
           cargo new marco-test-one
           cd marco-test-one
+          # set a high version so that release-plz doesn't try to open a PR
+          sed -i 's/version = "0.1.0"/version = "999.0.0"/' Cargo.toml
           git init
           git config --global user.email "test@example.com"
           git config --global user.name "Test"
@@ -37,6 +39,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           project_manifest: .github/workflows/marco-test-one/Cargo.toml
+          dry_run: true
       - name: Assert release
         env:
           RELEASES: ${{ steps.release-plz.outputs.releases }}
