@@ -37,6 +37,14 @@ inputs:
   verbose:
     description: "Print module and source location in logs."
     required: false
+  dry_run:
+    description:
+      "Add the `--dry-run` flag to the `release` command.
+      If the input `command` is left unspecified (and so both `release` and `release-pr` are ran),
+      the `--dry-run` flag is only added to the `release` command
+      (the flag isn't added to the `release-pr` command).
+      Useful if you're only interested in whether or not a release (pr) would be created."
+    required: false
 outputs:
   # Useful for when https://github.com/release-plz/release-plz/issues/1029 is implemented.
   # For now, it just returns an array with `pr` in it.
@@ -85,6 +93,13 @@ runs:
             VERBOSE=("-v")
         else
             VERBOSE=()
+        fi
+
+        if [[ -n "${{ inputs.dry_run }}" ]]
+        then
+            DRY_RUN=("--dry-run")
+        else
+            DRY_RUN=()
         fi
 
         if [[ -n "${{ inputs.token }}" ]]
@@ -166,6 +181,7 @@ runs:
                 "${FORGE[@]}"\
                 "${TOKEN[@]}"\
                 "${VERBOSE[@]}"\
+                "${DRY_RUN[@]}"\
                 -o json)
             echo "release_output: $release_output"
             releases=$(echo $release_output | jq -c .releases)
