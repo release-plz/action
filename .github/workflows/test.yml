@@ -39,6 +39,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           project_manifest: .github/workflows/marco-test-one/Cargo.toml
+          dry_run: true
       - name: Assert release
         env:
           RELEASES: ${{ steps.release-plz.outputs.releases }}
