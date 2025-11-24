@@ -61,7 +61,7 @@ fn verify_release_plz_tag(release_plz_tag: &str) {
         .output()
         .unwrap();
     let out = String::from_utf8(output.stdout).unwrap();
-    let expected_assets = "11";
+    let expected_assets = "10";
     let out = out.trim();
     if out != expected_assets {
         println!("release-plz tag `{release_plz_tag}` does not have {expected_assets} assets, it has {out} instead. Either:\n- you need to wait until the binaries are published\n- one binary failed to compile");
