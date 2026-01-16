@@ -70,7 +70,7 @@ runs:
   using: "composite"
   steps:
     - name: Install binaries
-      uses: taiki-e/install-action@v2
+      uses: taiki-e/install-action@30eab0fabba9ea3f522099957e668b21876aa39e # v2.66.6
       with:
         tool: cargo-semver-checks@0.45, release-plz@${{ inputs.version }}
     - name: Configure git user from GitHub token
