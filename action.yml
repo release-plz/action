@@ -28,14 +28,22 @@ inputs:
     description: "Deprecated. Use `manifest_path` instead."
     required: false
   version:
-    description: "Release-plz version to use. (Default: `0.3.146`)."
-    default: "0.3.146"
+    description: "Release-plz version to use. (Default: `0.3.151`)."
+    default: "0.3.151"
     required: false
   token:
     description: "Token used to publish to the cargo registry"
     required: false
   verbose:
     description: "Print module and source location in logs."
+    required: false
+  dry_run:
+    description:
+      "Add the `--dry-run` flag to the `release` command.
+      If the input `command` is left unspecified (and so both `release` and `release-pr` are ran),
+      the `--dry-run` flag is only added to the `release` command
+      (the flag isn't added to the `release-pr` command).
+      Useful if you're only interested in whether or not a release (pr) would be created."
     required: false
 outputs:
   # Useful for when https://github.com/release-plz/release-plz/issues/1029 is implemented.
@@ -61,10 +69,17 @@ branding:
 runs:
   using: "composite"
   steps:
-    - name: Install binaries
-      uses: taiki-e/install-action@v2
-      with:
-        tool: cargo-semver-checks@0.43, release-plz@${{ inputs.version }}
+    - name: Install cargo-binstall
+      uses: cargo-bins/cargo-binstall@e7cc28468cf17df7cb288daea80c0c5437af360b # v1.16.7
+    - name: Install tools
+      shell: bash
+      run: |
+        cargo-binstall \
+            release-plz@${{ inputs.version }}\
+            cargo-semver-checks@0.46\
+            --force\
+            --strategies=crate-meta-data,compile\
+            --no-confirm
     - name: Configure git user from GitHub token
       uses: release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
     - name: Run release-plz
@@ -85,6 +100,13 @@ runs:
             VERBOSE=("-v")
         else
             VERBOSE=()
+        fi
+
+        if [[ -n "${{ inputs.dry_run }}" ]]
+        then
+            DRY_RUN=("--dry-run")
+        else
+            DRY_RUN=()
         fi
 
         if [[ -n "${{ inputs.token }}" ]]
@@ -166,6 +188,7 @@ runs:
                 "${FORGE[@]}"\
                 "${TOKEN[@]}"\
                 "${VERBOSE[@]}"\
+                "${DRY_RUN[@]}"\
                 -o json)
             echo "release_output: $release_output"
             releases=$(echo $release_output | jq -c .releases)
