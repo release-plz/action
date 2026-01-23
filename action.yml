@@ -69,10 +69,17 @@ branding:
 runs:
   using: "composite"
   steps:
-    - name: Install binaries
-      uses: taiki-e/install-action@v2
-      with:
-        tool: cargo-semver-checks@0.46, release-plz@${{ inputs.version }}
+    - name: Install cargo-binstall
+      uses: cargo-bins/cargo-binstall@e7cc28468cf17df7cb288daea80c0c5437af360b # v1.16.7
+    - name: Install tools
+      shell: bash
+      run: |
+        cargo-binstall \
+            release-plz@${{ inputs.version }}\
+            cargo-semver-checks@0.46\
+            --force\
+            --strategies=crate-meta-data,compile\
+            --no-confirm
     - name: Configure git user from GitHub token
       uses: release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
     - name: Run release-plz
