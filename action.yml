@@ -78,7 +78,7 @@ runs:
             release-plz@${{ inputs.version }}\
             cargo-semver-checks@0.46\
             --force\
-            --strategies=crate-meta-data\
+            --strategies=crate-meta-data,compile\
             --no-confirm
     - name: Configure git user from GitHub token
       uses: release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
