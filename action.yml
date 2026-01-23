@@ -74,7 +74,7 @@ runs:
     - name: Install tools
       shell: bash
       run: |
-        cargo-binstall release-plz@${{ inputs.version }} cargo-semver-check@0.46 --force
+        cargo-binstall release-plz@${{ inputs.version }} cargo-semver-checks@0.46 --force
     - name: Configure git user from GitHub token
       uses: release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
     - name: Run release-plz
