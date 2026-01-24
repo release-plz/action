@@ -69,7 +69,8 @@ branding:
 runs:
   using: "composite"
   steps:
-    # Install cargo-semver-checks with install-action to avoid checking crates-io
+    # Install cargo-semver-checks with install-action instead of cargo-binstall
+    # to avoid checking crates-io
     - name: Install cargo-semver-checks
       uses: taiki-e/install-action@90b40388b8931b1c39e248959515e295e02e9066 # v2.67.7
       with:
