@@ -4,7 +4,7 @@ Action for [release-plz](https://github.com/release-plz/release-plz).
 
 ## Docs
 
-Learn how to use this action in the [docs](https://release-plz.ieni.dev/).
+Learn how to use this action in the [docs](https://release-plz.dev/).
 
 <br>
 
