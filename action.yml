@@ -74,7 +74,7 @@ runs:
     - name: Install cargo-semver-checks
       uses: taiki-e/install-action@f8d25fb8a2df08dcd3cead89780d572767b8655f # v2.68.0
       with:
-        tool: cargo-semver-checks@0.46
+        tool: cargo-semver-checks@v0.46.0
     - name: Install cargo-binstall
       uses: cargo-bins/cargo-binstall@7691a5b29cda4f5499b819e5618012ba4b6c3334 # v1.17.5
       env:
