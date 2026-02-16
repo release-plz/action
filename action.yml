@@ -72,11 +72,11 @@ runs:
     # Install cargo-semver-checks with install-action instead of cargo-binstall
     # to avoid checking crates-io
     - name: Install cargo-semver-checks
-      uses: taiki-e/install-action@90b40388b8931b1c39e248959515e295e02e9066 # v2.67.7
+      uses: taiki-e/install-action@f8d25fb8a2df08dcd3cead89780d572767b8655f # v2.68.0
       with:
         tool: cargo-semver-checks@0.46
     - name: Install cargo-binstall
-      uses: cargo-bins/cargo-binstall@e7cc28468cf17df7cb288daea80c0c5437af360b # v1.16.7
+      uses: cargo-bins/cargo-binstall@7691a5b29cda4f5499b819e5618012ba4b6c3334 # v1.17.5
       env:
         BINSTALL_VERSION: 1.16.7
     # Install release-plz using cargo-binstall instead of install-action because we
