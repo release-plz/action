@@ -201,9 +201,9 @@ dependencies = [
 
 [[package]]
 name = "git-conventional"
-version = "0.12.9"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6a949b7fcc81df22526032dcddb006e78c8575e47b0e7ba57d9960570a57bc4"
+checksum = "8e309a81911009e578fdd9bdac9839c6a2675c197ced418e21ecd6cefc05cd41"
 dependencies = [
  "unicase",
  "winnow",
@@ -327,9 +327,9 @@ dependencies = [
 
 [[package]]
 name = "next_version"
-version = "0.2.26"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc89399c10a3de3a18971b961e9fea788eb252d887c1c2f740f351a907088d0c"
+checksum = "3eaa4fbfcaa858a873bad644e558c600f8901759494725041276b3f487fb0d74"
 dependencies = [
  "git-conventional",
  "regex",
