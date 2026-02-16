@@ -36,6 +36,19 @@
       datasourceTemplate: 'github-tags',
       versioningTemplate: 'loose',
     },
+    {
+      customType: 'regex',
+      fileMatch: [
+        '^action\\.yml$',
+      ],
+      matchStrings: [
+        'BINSTALL_VERSION:\\s*(?<currentValue>\\S+)',
+      ],
+      depNameTemplate: 'cargo-bins/cargo-binstall',
+      datasourceTemplate: 'github-releases',
+      extractVersionTemplate: '^v(?<version>.*)$',
+      versioningTemplate: 'loose',
+    },
   ],
   automerge: true,
   packageRules: [
