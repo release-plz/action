@@ -1,7 +1,5 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  // Extend everything from config:recommended, except for ignoreModulesAndTests,
-  // which disables docker-compose updates.
   extends: [
     ':dependencyDashboard',
     ':semanticPrefixFixDepsChoreOthers',
@@ -15,8 +13,8 @@
   customManagers: [
     {
       customType: 'regex',
-      fileMatch: [
-        '^action\\.yml$',
+      managerFilePatterns: [
+        '/^action\\.yml$/',
       ],
       matchStrings: [
         '(?<toolPrefix>tool:\\s*cargo-semver-checks@)(?<currentValue>\\S+)',
@@ -29,8 +27,8 @@
     },
     {
       customType: 'regex',
-      fileMatch: [
-        '^action\\.yml$',
+      managerFilePatterns: [
+        '/^action\\.yml$/',
       ],
       matchStrings: [
         'uses:\\s*(?<depName>[\\w.-]+\\/[\\w.-]+)@(?<currentDigest>[a-f0-9]{40})\\s+#\\s*(?<currentValue>\\S+)',
@@ -40,8 +38,8 @@
     },
     {
       customType: 'regex',
-      fileMatch: [
-        '^action\\.yml$',
+      managerFilePatterns: [
+        '/^action\\.yml$/',
       ],
       matchStrings: [
         'BINSTALL_VERSION:\\s*(?<currentValue>\\S+)',
@@ -58,7 +56,6 @@
       matchManagers: [
         'github-actions',
       ],
-      // Every weekend
       schedule: '* * * * 0,6',
       groupName: 'Github Actions',
     },
@@ -69,23 +66,15 @@
       matchUpdateTypes: [
         'patch',
       ],
-      // Disable patch updates for single dependencies because patches
-      // are updated periodically with lockfile maintainance.
       enabled: false,
     },
     {
       matchDepNames: [
         'obi1kenobi/cargo-semver-checks',
       ],
-      // Keep cargo-semver-checks updated in action.yml on every new release.
       enabled: true,
     },
   ],
-  // Receive any update that fixes security vulnerabilities.
-  // We need this because we disabled "patch" updates for Rust.
-  // Note: You need to enable "Dependabot alerts" in "Code security" GitHub
-  // Settings to receive security updates.
-  // See https://docs.renovatebot.com/configuration-options/#vulnerabilityalerts
   vulnerabilityAlerts: {
     enabled: true,
   },
