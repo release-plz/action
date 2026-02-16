@@ -12,6 +12,20 @@
     'helpers:pinGitHubActionDigests',
     ':maintainLockFilesWeekly',
   ],
+  customManagers: [
+    {
+      customType: 'regex',
+      fileMatch: [
+        '^action\\.yml$',
+      ],
+      matchStrings: [
+        'tool:\\s*cargo-semver-checks@(?<currentValue>\\S+)',
+      ],
+      depNameTemplate: 'obi1kenobi/cargo-semver-checks',
+      datasourceTemplate: 'github-releases',
+      versioningTemplate: 'loose',
+    },
+  ],
   automerge: true,
   packageRules: [
     {
@@ -32,6 +46,13 @@
       // Disable patch updates for single dependencies because patches
       // are updated periodically with lockfile maintainance.
       enabled: false,
+    },
+    {
+      matchDepNames: [
+        'obi1kenobi/cargo-semver-checks',
+      ],
+      // Keep cargo-semver-checks updated in action.yml on every new release.
+      enabled: true,
     },
   ],
   // Receive any update that fixes security vulnerabilities.
