@@ -25,6 +25,17 @@
       datasourceTemplate: 'github-releases',
       versioningTemplate: 'loose',
     },
+    {
+      customType: 'regex',
+      fileMatch: [
+        '^action\\.yml$',
+      ],
+      matchStrings: [
+        'uses:\\s*(?<depName>[\\w.-]+\\/[\\w.-]+)@(?<currentDigest>[a-f0-9]{40})\\s+#\\s*(?<currentValue>\\S+)',
+      ],
+      datasourceTemplate: 'github-tags',
+      versioningTemplate: 'loose',
+    },
   ],
   automerge: true,
   packageRules: [
