@@ -78,7 +78,7 @@ runs:
     - name: Install cargo-binstall
       uses: cargo-bins/cargo-binstall@7691a5b29cda4f5499b819e5618012ba4b6c3334 # v1.17.5
       env:
-        BINSTALL_VERSION: 1.16.7
+        BINSTALL_VERSION: 1.17.5
     # Install release-plz using cargo-binstall instead of install-action because we
     # don't want to wait the 3 hour install-action release cadence before releasing a new
     # version of this action.
