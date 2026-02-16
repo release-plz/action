@@ -163,7 +163,8 @@ runs:
         if [[ -z "${{ inputs.command }}" || "${{ inputs.command }}" == "release-pr" ]]
         then
             echo "-- Running release-plz release-pr --"
-            release_pr_output=$(release-plz release-pr\
+            release_pr_stderr=$(mktemp)
+            if ! release_pr_output=$(release-plz release-pr\
                 --git-token "${GITHUB_TOKEN}"\
                 --repo-url "https://github.com/${GITHUB_REPOSITORY}"\
                 "${CONFIG_PATH[@]}"\
@@ -171,14 +172,28 @@ runs:
                 "${MANIFEST_PATH[@]}"\
                 "${FORGE[@]}"\
                 "${VERBOSE[@]}"\
-                -o json)
+                -o json 2>"$release_pr_stderr")
+            then
+                release_pr_error=$(cat "$release_pr_stderr")
+                # GitHub can return 422 for no-op/unprocessable release-pr calls.
+                # Treat this as "nothing to create" instead of failing the whole action.
+                if [[ "$release_pr_error" == *"422"* ]]; then
+                    echo "::warning::release-plz release-pr failed with HTTP 422; continuing with no PRs created."
+                    release_pr_output='{"prs":[]}'
+                else
+                    echo "$release_pr_error" >&2
+                    rm -f "$release_pr_stderr"
+                    exit 1
+                fi
+            fi
+            rm -f "$release_pr_stderr"
             echo "release_pr_output: $release_pr_output"
-            prs=$(echo $release_pr_output | jq -c .prs)
+            prs=$(echo "$release_pr_output" | jq -c .prs)
             echo "prs=$prs" >> "$GITHUB_OUTPUT"
             prs_length=$(echo "$prs" | jq 'length')
             if [ "$prs_length" != "0" ]; then
                 prs_created=true
-                first_pr=$(echo $prs | jq -c .[0])
+                first_pr=$(echo "$prs" | jq -c .[0])
             else
                 prs_created=false
                 first_pr="{}"
