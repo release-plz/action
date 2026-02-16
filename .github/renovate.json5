@@ -15,8 +15,8 @@
   customManagers: [
     {
       customType: 'regex',
-      fileMatch: [
-        '^action\\.yml$',
+      managerFilePatterns: [
+        '/^action\\.yml$/',
       ],
       matchStrings: [
         '(?<toolPrefix>tool:\\s*cargo-semver-checks@)(?<currentValue>\\S+)',
@@ -29,8 +29,8 @@
     },
     {
       customType: 'regex',
-      fileMatch: [
-        '^action\\.yml$',
+      managerFilePatterns: [
+        '/^action\\.yml$/',
       ],
       matchStrings: [
         'uses:\\s*(?<depName>[\\w.-]+\\/[\\w.-]+)@(?<currentDigest>[a-f0-9]{40})\\s+#\\s*(?<currentValue>\\S+)',
@@ -40,8 +40,8 @@
     },
     {
       customType: 'regex',
-      fileMatch: [
-        '^action\\.yml$',
+      managerFilePatterns: [
+        '/^action\\.yml$/',
       ],
       matchStrings: [
         'BINSTALL_VERSION:\\s*(?<currentValue>\\S+)',
