@@ -76,7 +76,7 @@ runs:
       with:
         tool: cargo-semver-checks@0.46
     - name: Install cargo-binstall
-      uses: cargo-bins/cargo-binstall@0b24824336e2b3800b0f89d9e08b2c08bfa3dcdd # v1.17.9
+      uses: cargo-bins/cargo-binstall@f8ce4d55b131f4a1e373b8747ca6b6a54133ae5a # v1.18.0
       env:
         BINSTALL_VERSION: 1.17.8
     # Install release-plz using cargo-binstall instead of install-action because we
