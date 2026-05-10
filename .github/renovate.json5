@@ -19,9 +19,9 @@
         '/^action\\.yml$/',
       ],
       matchStrings: [
-        '(?<toolPrefix>tool:\\s*cargo-semver-checks@)(?<currentValue>\\S+)',
+        'tool:\\s*cargo-semver-checks@(?<currentValue>\\S+)',
       ],
-      autoReplaceStringTemplate: '{{{toolPrefix}}}{{{newVersion}}}',
+      autoReplaceStringTemplate: 'tool: cargo-semver-checks@{{{newVersion}}}',
       depNameTemplate: 'obi1kenobi/cargo-semver-checks',
       datasourceTemplate: 'github-releases',
       extractVersionTemplate: '^v?(?<version>\\d+\\.\\d+)(?:\\.\\d+)?$',
