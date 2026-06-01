@@ -178,7 +178,7 @@ runs:
                 # GitHub can return 422 for no-op/unprocessable release-pr calls.
                 # Treat this as "nothing to create" instead of failing the whole action.
                 if [[ "$release_pr_error" == *"422"* ]]; then
-                    echo "::warning::release-plz release-pr failed with HTTP 422; continuing with no PRs created."
+                    echo "::warning::release-plz release-pr failed with HTTP 422; continuing with no PRs created.\n$release_pr_error"
                     release_pr_output='{"prs":[]}'
                 else
                     echo "$release_pr_error" >&2
