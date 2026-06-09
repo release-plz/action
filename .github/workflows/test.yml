@@ -38,7 +38,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Keep this fixture on the release path; release-pr talks to the GitHub PR API
+          # Keep this fixture on the release path; release-pr talks to the GitHub API
           # and can fail with HTTP 422 for this no-op test repository setup.
           command: release
           project_manifest: .github/workflows/marco-test-one/Cargo.toml
