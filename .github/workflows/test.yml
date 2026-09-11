@@ -11,8 +11,26 @@ on:
       - "**.md"
 
 jobs:
+  arguments:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python3 -m pip install PyYAML==6.0.3
+      - run: python3 -m unittest discover -s tests -v
+
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - forge: ""
+            backend: github
+          - forge: gitea
+            backend: github
+          - forge: ""
+            backend: gitea
     permissions:
       contents: write
       pull-requests: write
@@ -32,12 +50,25 @@ jobs:
           git add .
           git commit -m "first commit"
           git remote add origin https://github.com/Test/release-plz-test.git
+      - name: Reject GitHub API access for Gitea
+        if: ${{ (matrix.forge || matrix.backend) == 'gitea' }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/no-gh"
+          cat > "$RUNNER_TEMP/no-gh/gh" <<'EOF'
+          #!/usr/bin/env bash
+          echo "Gitea must not call gh" >&2
+          exit 1
+          EOF
+          chmod +x "$RUNNER_TEMP/no-gh/gh"
+          echo "$RUNNER_TEMP/no-gh" >> "$GITHUB_PATH"
       - name: Run release-plz
         id: release-plz
         uses: ./ # Uses an action in the root directory
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          forge: ${{ matrix.forge }}
+          backend: ${{ matrix.backend }}
           # Keep this fixture on the release path; release-pr talks to the GitHub API
           # and can fail with HTTP 422 for this no-op test repository setup.
           command: release
