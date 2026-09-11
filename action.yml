@@ -12,7 +12,7 @@ inputs:
     description: "Config file location. If not present, the default 'release-plz.toml' is used."
     required: false
   forge:
-    description: "Git forge/backend. Valid values: 'github', 'gitea'. Defaults to 'backend' (github)."
+    description: "Git forge/backend. Valid values: 'github', 'gitea'. Defaults to 'github'."
     required: false
   backend:
     description: "Supported for backward compatibility. Use 'forge' instead."
