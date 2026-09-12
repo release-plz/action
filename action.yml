@@ -16,7 +16,6 @@ inputs:
     required: false
   backend:
     description: "Supported for backward compatibility. Use 'forge' instead."
-    default: "github"
     required: false
   manifest_path:
     description:
@@ -134,10 +133,11 @@ runs:
         elif [[ -n "${{ inputs.backend }}" ]]
         then
           echo "'backend' input is supported for backward compatibility. Use 'forge' instead."
-          echo "Using backend '${{ inputs.backend }}'"
+          echo "Using forge '${{ inputs.backend }}'"
           FORGE=("--forge" "${{ inputs.backend }}")
         else
-          FORGE=()
+          echo "Using forge 'github'"
+          FORGE=("--forge" "github")
         fi
 
         if [[ -n "${{ inputs.registry }}" ]]
