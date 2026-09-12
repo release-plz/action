@@ -20,6 +20,7 @@ action, using the identity you want on release commits:
 - uses: https://github.com/actions/checkout@v4
   with:
     fetch-depth: 0
+    token: ${{ secrets.RELEASE_TOKEN }}
 - name: Configure release author
   run: |
     git config --global user.name "Release Bot"
@@ -34,7 +35,8 @@ action, using the identity you want on release commits:
 
 Replace the example identity with your release account's name and email, and
 set `RELEASE_TOKEN` to a Gitea token with permission to push commits and create
-pull requests and releases. The runner needs the usual release-plz prerequisites
+pull requests and releases. Passing it to checkout also authenticates Git pushes.
+The runner needs the usual release-plz prerequisites
 (including Rust, Git, Bash and jq); `gh` is not required for Gitea.
 
 The deprecated `backend` input remains supported when `forge` is not specified.
