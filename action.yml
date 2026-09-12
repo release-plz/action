@@ -12,12 +12,10 @@ inputs:
     description: "Config file location. If not present, the default 'release-plz.toml' is used."
     required: false
   forge:
-    description: "Git forge/backend. Valid values: 'github', 'gitea'"
-    default: "github"
+    description: "Git forge/backend. Valid values: 'github', 'gitea'. Defaults to 'github'."
     required: false
   backend:
     description: "Supported for backward compatibility. Use 'forge' instead."
-    default: "github"
     required: false
   manifest_path:
     description:
@@ -91,6 +89,7 @@ runs:
             --strategies=crate-meta-data,compile\
             --no-confirm
     - name: Configure git user from GitHub token
+      if: ${{ (inputs.forge || inputs.backend || 'github') == 'github' }}
       uses: release-plz/git-config@59144859caf016f8b817a2ac9b051578729173c4
     - name: Run release-plz
       id: release-plz
@@ -134,10 +133,11 @@ runs:
         elif [[ -n "${{ inputs.backend }}" ]]
         then
           echo "'backend' input is supported for backward compatibility. Use 'forge' instead."
-          echo "Using backend '${{ inputs.backend }}'"
+          echo "Using forge '${{ inputs.backend }}'"
           FORGE=("--forge" "${{ inputs.backend }}")
         else
-          FORGE=()
+          echo "Using forge 'github'"
+          FORGE=("--forge" "github")
         fi
 
         if [[ -n "${{ inputs.registry }}" ]]
@@ -165,7 +165,7 @@ runs:
             echo "-- Running release-plz release-pr --"
             release_pr_output=$(release-plz release-pr\
                 --git-token "${GITHUB_TOKEN}"\
-                --repo-url "https://github.com/${GITHUB_REPOSITORY}"\
+                --repo-url "${GITHUB_SERVER_URL:-https://github.com}/${GITHUB_REPOSITORY}"\
                 "${CONFIG_PATH[@]}"\
                 "${ALT_REGISTRY[@]}"\
                 "${MANIFEST_PATH[@]}"\
