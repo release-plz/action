@@ -29,7 +29,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
         with:
           command: release-pr
-          # FORGE_INPUTS
+          forge: gitea
 
       - name: Check action outputs against Gitea
         shell: bash

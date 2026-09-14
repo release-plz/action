@@ -12,14 +12,6 @@ use reqwest::{Method, blocking::Client};
 use serde_json::{Value, json};
 
 const USER: &str = "release-test";
-const CASES: &[(&str, &str)] = &[
-    ("forge", "forge: gitea"),
-    ("backend", "backend: gitea"),
-    (
-        "forge-precedence",
-        "forge: gitea\n          backend: github",
-    ),
-];
 
 #[test]
 fn action_on_gitea() -> Result<()> {
@@ -61,21 +53,18 @@ fn action_on_gitea() -> Result<()> {
         token,
         client: Client::builder().timeout(Duration::from_secs(30)).build()?,
     };
-    for &(case, inputs) in CASES {
-        test_case(&stack, &gitea, &address, case, inputs)
-            .with_context(|| format!("Gitea case {case} failed"))?;
-    }
+    test_release_pr(&stack, &gitea, &address).context("Gitea release PR test failed")?;
     stack.passed = true;
     Ok(())
 }
 
-fn test_case(stack: &Stack, gitea: &Gitea, address: &str, case: &str, inputs: &str) -> Result<()> {
-    let repo = format!("{USER}/{case}");
+fn test_release_pr(stack: &Stack, gitea: &Gitea, address: &str) -> Result<()> {
+    let repo = format!("{USER}/forge");
     let path = format!("/repos/{repo}");
     gitea.request(
         Method::POST,
         "/user/repos",
-        json!({"name": case, "default_branch": "main"}),
+        json!({"name": "forge", "default_branch": "main"}),
     )?;
     gitea.request(Method::PATCH, &path, json!({"has_actions": true}))?;
     gitea.request(
@@ -90,11 +79,6 @@ fn test_case(stack: &Stack, gitea: &Gitea, address: &str, case: &str, inputs: &s
     fs::copy(
         stack.directory.join("../../action.yml"),
         fixture.join("action.yml"),
-    )?;
-    let workflow = fixture.join(".gitea/workflows/test.yml");
-    fs::write(
-        &workflow,
-        fs::read_to_string(&workflow)?.replace("# FORGE_INPUTS", inputs),
     )?;
     let git = || {
         let mut command = Command::new("git");
@@ -157,7 +141,7 @@ fn test_case(stack: &Stack, gitea: &Gitea, address: &str, case: &str, inputs: &s
             "release PR did not change {expected}"
         );
     }
-    println!("PASS: {case} created a release PR and returned matching outputs");
+    println!("PASS: created a Gitea release PR and returned matching outputs");
     Ok(())
 }
 

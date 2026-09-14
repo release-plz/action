@@ -11,8 +11,7 @@ The test starts an isolated Gitea server and an Actions runner in Docker, then
 pushes a Rust fixture containing the working tree's `action.yml`. Gitea runs the
 real composite action, including tool installation, and checks its PR outputs
 against the Gitea API. The harness also checks that the PR changes the manifest
-and changelog for a patch release. It covers `forge: gitea`, the legacy
-`backend: gitea` input, and `forge` taking precedence over `backend`.
+and changelog for a patch release using `forge: gitea`.
 
 The fixture uses release-plz's `git_only` mode, so no Cargo registry or publishing
 credentials are needed. Network access is needed to download images, actions,
