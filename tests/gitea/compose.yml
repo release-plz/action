@@ -26,6 +26,13 @@ services:
         condition: service_healthy
     environment:
       GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_REGISTRATION_TOKEN:?}
+    # `gitea-runner register` writes `.runner` to the working directory once
+    # registration succeeds, so `up --wait` covers registration too.
+    healthcheck:
+      test: ["CMD", "test", "-f", "/runner/.runner"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
     # Host execution here runs jobs inside this disposable container.
     # No host Docker socket or workspace mount is needed.
     command:
