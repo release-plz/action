@@ -245,8 +245,9 @@ impl Compose {
         command
             .args(["compose", "-f"])
             .arg(Path::new(DIRECTORY).join("compose.yml"))
-            // Overrides the top-level `name` in compose.yml, which `down` relies on.
-            .env_remove("COMPOSE_PROJECT_NAME");
+            // Both can override the top-level `name` in compose.yml, which `down` relies on.
+            .env_remove("COMPOSE_PROJECT_NAME")
+            .env_remove("COMPOSE_ENV_FILES");
         command
     }
 
