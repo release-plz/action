@@ -246,7 +246,9 @@ impl Compose {
         let mut command = Command::new("docker");
         command
             .args(["compose", "-f"])
-            .arg(self.directory.join("compose.yml"));
+            .arg(self.directory.join("compose.yml"))
+            // Overrides the top-level `name` in compose.yml, which `down` relies on.
+            .env_remove("COMPOSE_PROJECT_NAME");
         command
     }
 
