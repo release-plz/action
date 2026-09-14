@@ -32,7 +32,7 @@ jobs:
           command: release-pr
           forge: gitea
 
-      - name: Check action outputs against Gitea
+      - name: Check action outputs
         env:
           PR: ${{ steps.release-plz.outputs.pr }}
           PRS: ${{ steps.release-plz.outputs.prs }}
