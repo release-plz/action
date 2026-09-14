@@ -7,7 +7,6 @@ use std::{
 };
 
 use anyhow::{Context, Result, bail, ensure};
-use base64::{Engine, engine::general_purpose::STANDARD};
 use reqwest::{Method, blocking::Client};
 use serde_json::{Value, json};
 
@@ -101,24 +100,14 @@ fn test_release_pr(stack: &Stack, gitea: &Gitea, address: &str) -> Result<()> {
     run(git().args(["add", "."]))?;
     run(git().args(["commit", "-m", "fix: improve greeting"]))?;
     let sha = capture(git().args(["rev-parse", "HEAD"]))?;
-    run(git().args([
-        "remote",
-        "add",
-        "origin",
-        &format!("http://{address}/{repo}.git"),
-    ]))?;
-    let credentials = STANDARD.encode(format!("{USER}:{}", gitea.token));
+    // No remote is configured: the workflow clones the repository from Gitea.
     run(git()
-        .args(["push", "--atomic", "origin", "main", "refs/tags/v0.1.0"])
-        .env("GIT_CONFIG_COUNT", "1")
-        .env(
-            "GIT_CONFIG_KEY_0",
-            format!("http.http://{address}/.extraheader"),
-        )
-        .env(
-            "GIT_CONFIG_VALUE_0",
-            format!("Authorization: Basic {credentials}"),
-        )
+        .args(["push", "--atomic"])
+        .arg(format!(
+            "http://{USER}:{}@{address}/{repo}.git",
+            gitea.token
+        ))
+        .args(["main", "refs/tags/v0.1.0"])
         .env("GIT_TERMINAL_PROMPT", "0"))?;
 
     wait_for_workflow(gitea, &path, &sha)?;
