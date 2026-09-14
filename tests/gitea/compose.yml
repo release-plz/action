@@ -1,3 +1,7 @@
+# Fixed so that the next run can clean up a project leaked by an interrupted
+# run, at the cost of one run per host at a time.
+name: release-plz-gitea-test
+
 services:
   gitea:
     image: gitea/gitea:1.27.3-rootless
@@ -10,7 +14,8 @@ services:
       GITEA__repository__DEFAULT_BRANCH: main
       GITEA__actions__ENABLED: "true"
       GITEA__actions__DEFAULT_ACTIONS_URL: github
-      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_REGISTRATION_TOKEN:?}
+      # Gitea requires registration tokens to be at least 32 characters long.
+      GITEA_RUNNER_REGISTRATION_TOKEN: &registration-token integration-test-runner-registration-token-not-a-secret
     ports:
       - "127.0.0.1::3000"
     healthcheck:
@@ -25,7 +30,7 @@ services:
       gitea:
         condition: service_healthy
     environment:
-      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_REGISTRATION_TOKEN:?}
+      GITEA_RUNNER_REGISTRATION_TOKEN: *registration-token
     # `gitea-runner register` writes `.runner` to the working directory once
     # registration succeeds, so `up --wait` covers registration too.
     healthcheck:

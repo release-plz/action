@@ -17,4 +17,4 @@ asserts the pull request bumps the fixture to a patch release, changing
 
 The Compose project `release-plz-gitea-test` is torn down when the test exits,
 and a run interrupted with Ctrl-C is cleaned up by the next run. To remove it by
-hand, run `docker compose -p release-plz-gitea-test down --volumes`.
+hand, run `docker compose -f tests/gitea/compose.yml down --volumes`.

@@ -230,12 +230,6 @@ struct Compose {
 }
 
 impl Compose {
-    /// Fixed so that the next run can clean up a project leaked by an
-    /// interrupted run, at the cost of one run per host at a time.
-    const PROJECT: &str = "release-plz-gitea-test";
-    /// Gitea requires registration tokens to be at least 32 characters long.
-    const REGISTRATION_TOKEN: &str = "integration-test-runner-registration-token-not-a-secret";
-
     fn new() -> Result<Self> {
         let compose = Self {
             directory: PathBuf::from(env!("CARGO_MANIFEST_DIR")),
@@ -252,9 +246,7 @@ impl Compose {
         let mut command = Command::new("docker");
         command
             .args(["compose", "-f"])
-            .arg(self.directory.join("compose.yml"))
-            .args(["-p", Self::PROJECT])
-            .env("GITEA_RUNNER_REGISTRATION_TOKEN", Self::REGISTRATION_TOKEN);
+            .arg(self.directory.join("compose.yml"));
         command
     }
 
