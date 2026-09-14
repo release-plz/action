@@ -63,6 +63,18 @@
       groupName: 'Github Actions',
     },
     {
+      matchFileNames: [
+        'tests/gitea/fixture/.gitea/workflows/**',
+      ],
+      matchDepNames: [
+        'actions/checkout',
+      ],
+      // checkout v6+ keeps the token in a file that release-plz's temporary
+      // copy of the repository cannot see, so the fixture stays on v5:
+      // https://github.com/release-plz/release-plz/issues/2957
+      allowedVersions: '/^v5\\./',
+    },
+    {
       matchCategories: [
         'rust',
       ],
