@@ -18,15 +18,7 @@ const DIRECTORY: &str = env!("CARGO_MANIFEST_DIR");
 
 #[test]
 fn action_on_gitea() -> Result<()> {
-    let mut compose = Compose::new()?;
-    run(compose.command().args([
-        "up",
-        "--build",
-        "--detach",
-        "--wait",
-        "--wait-timeout",
-        "180",
-    ]))?;
+    let mut compose = Compose::up()?;
     let address = capture(compose.command().args(["port", "gitea", "3000"]))?;
     run(compose.admin_user().args([
         "create",
@@ -231,12 +223,21 @@ struct Compose {
 }
 
 impl Compose {
-    fn new() -> Result<Self> {
+    /// Removes what a killed previous run left behind (`Drop` never ran for it),
+    /// then starts the stack.
+    fn up() -> Result<Self> {
         let compose = Self { passed: false };
-        // `Drop` does not run when the previous run was killed.
         compose
             .down()
             .context("could not clean up a previous run")?;
+        run(compose.command().args([
+            "up",
+            "--build",
+            "--detach",
+            "--wait",
+            "--wait-timeout",
+            "180",
+        ]))?;
         Ok(compose)
     }
 
