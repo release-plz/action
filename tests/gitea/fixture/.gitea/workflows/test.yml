@@ -19,7 +19,6 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git user
-        shell: bash
         run: |
           git config user.name "Release test"
           git config user.email "release-test@example.com"
@@ -34,7 +33,6 @@ jobs:
           forge: gitea
 
       - name: Check action outputs against Gitea
-        shell: bash
         env:
           PR: ${{ steps.release-plz.outputs.pr }}
           PRS: ${{ steps.release-plz.outputs.prs }}
