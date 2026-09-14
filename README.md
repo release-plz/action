@@ -8,11 +8,8 @@ Learn how to use this action in the [docs](https://release-plz.dev/).
 
 ## Tests
 
-Run the [Gitea integration test](tests/gitea/README.md) with Docker:
-
-```sh
-cargo test --manifest-path tests/gitea/Cargo.toml --locked -- --nocapture
-```
+See the [Gitea integration test](tests/gitea/README.md) for running the action
+end to end against a local Gitea in Docker.
 
 <br>
 
