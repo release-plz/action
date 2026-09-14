@@ -116,8 +116,13 @@ fn test_release_pr(stack: &Stack, gitea: &Gitea, address: &str) -> Result<()> {
         .as_array()
         .context("expected an array of pull requests")?;
     ensure!(
-        prs.len() == 1 && prs[0]["title"] == "chore: release v0.1.1",
-        "expected one release PR for v0.1.1, got {prs:?}"
+        prs.len() == 1
+            && prs[0]["title"] == "chore: release v0.1.1"
+            && prs[0]["base"]["ref"] == "main"
+            && prs[0]["head"]["ref"]
+                .as_str()
+                .is_some_and(|branch| branch.starts_with("release-plz-")),
+        "expected one release PR for v0.1.1 from a release-plz branch onto main, got {prs:?}"
     );
     let number = prs[0]["number"].as_u64().context("missing PR number")?;
     let files = gitea.get(&format!("{path}/pulls/{number}/files"))?;

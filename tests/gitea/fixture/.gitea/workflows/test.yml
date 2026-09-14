@@ -34,7 +34,6 @@ jobs:
       - name: Check action outputs against Gitea
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
           PR: ${{ steps.release-plz.outputs.pr }}
           PRS: ${{ steps.release-plz.outputs.prs }}
           PRS_CREATED: ${{ steps.release-plz.outputs.prs_created }}
@@ -46,9 +45,3 @@ jobs:
             '.number == 1 and .html_url == $url and
               .releases[0].package_name == "release-plz-gitea-test" and
               .releases[0].version == "0.1.1"' <<< "$PR"
-          curl --fail-with-body --silent --show-error \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls/1" |
-            jq -e '.state == "open" and .base.ref == "main" and
-              .title == "chore: release v0.1.1" and
-              (.head.ref | startswith("release-plz-"))'
