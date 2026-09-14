@@ -17,8 +17,8 @@ const USER: &str = "release-test";
 
 #[test]
 fn action_on_gitea() -> Result<()> {
-    let mut stack = Stack::new()?;
-    run(stack.command().args([
+    let mut compose = Compose::new()?;
+    run(compose.command().args([
         "up",
         "--build",
         "--detach",
@@ -26,8 +26,8 @@ fn action_on_gitea() -> Result<()> {
         "--wait-timeout",
         "180",
     ]))?;
-    let address = capture(stack.command().args(["port", "gitea", "3000"]))?;
-    run(stack.admin().args([
+    let address = capture(compose.command().args(["port", "gitea", "3000"]))?;
+    run(compose.admin_user().args([
         "create",
         "--username",
         USER,
@@ -37,7 +37,7 @@ fn action_on_gitea() -> Result<()> {
         "release-test@example.com",
         "--must-change-password=false",
     ]))?;
-    let token = capture(stack.admin().args([
+    let token = capture(compose.admin_user().args([
         "generate-access-token",
         "--username",
         USER,
@@ -51,16 +51,16 @@ fn action_on_gitea() -> Result<()> {
         println!("::add-mask::{token}");
     }
     let gitea = Gitea {
-        url: format!("http://{address}/api/v1"),
+        address,
         token,
         client: Client::builder().timeout(Duration::from_secs(30)).build()?,
     };
-    test_release_pr(&stack, &gitea, &address).context("Gitea release PR test failed")?;
-    stack.passed = true;
+    test_release_pr(&compose, &gitea).context("Gitea release PR test failed")?;
+    compose.passed = true;
     Ok(())
 }
 
-fn test_release_pr(stack: &Stack, gitea: &Gitea, address: &str) -> Result<()> {
+fn test_release_pr(compose: &Compose, gitea: &Gitea) -> Result<()> {
     let repo = format!("{USER}/forge");
     let path = format!("/repos/{repo}");
     gitea.send(
@@ -77,9 +77,9 @@ fn test_release_pr(stack: &Stack, gitea: &Gitea, address: &str) -> Result<()> {
 
     let temp = tempfile::tempdir()?;
     let fixture = temp.path().join("fixture");
-    copy_dir(&stack.directory.join("fixture"), &fixture)?;
+    copy_dir(&compose.directory.join("fixture"), &fixture)?;
     fs::copy(
-        stack.directory.join("../../action.yml"),
+        compose.directory.join("../../action.yml"),
         fixture.join("action.yml"),
     )?;
     let git = || {
@@ -107,13 +107,13 @@ fn test_release_pr(stack: &Stack, gitea: &Gitea, address: &str) -> Result<()> {
     run(git()
         .args(["push", "--atomic"])
         .arg(format!(
-            "http://{USER}:{}@{address}/{repo}.git",
-            gitea.token
+            "http://{USER}:{}@{}/{repo}.git",
+            gitea.token, gitea.address
         ))
         .args(["main", "refs/tags/v0.1.0"])
         .env("GIT_TERMINAL_PROMPT", "0"))?;
 
-    wait_for_workflow(gitea, &path, &sha)?;
+    wait_for_workflow(gitea, &repo, &sha)?;
     let prs = gitea.get(&format!("{path}/pulls?state=open"))?;
     let prs = prs
         .as_array()
@@ -151,7 +151,7 @@ fn wait_for_workflow(gitea: &Gitea, repo: &str, sha: &str) -> Result<()> {
         if Instant::now() >= deadline {
             break anyhow!("Gitea workflow did not succeed within 15 minutes");
         }
-        let runs = gitea.get(&format!("{repo}/actions/runs"))?;
+        let runs = gitea.get(&format!("/repos/{repo}/actions/runs"))?;
         let runs = runs["workflow_runs"]
             .as_array()
             .context("missing workflow_runs array")?;
@@ -182,7 +182,7 @@ fn wait_for_workflow(gitea: &Gitea, repo: &str, sha: &str) -> Result<()> {
 }
 
 struct Gitea {
-    url: String,
+    address: String,
     token: String,
     client: Client,
 }
@@ -192,7 +192,7 @@ impl Gitea {
         let description = format!("{method} {path}");
         let mut request = self
             .client
-            .request(method, format!("{}{path}", self.url))
+            .request(method, format!("http://{}/api/v1{path}", self.address))
             .header("Authorization", format!("token {}", self.token));
         if let Some(body) = body {
             request = request.json(body);
@@ -213,37 +213,39 @@ impl Gitea {
 
     fn job_logs(&self, repo: &str, run_id: Option<u64>) -> Result<String> {
         let run_id = run_id.context("no workflow run was created")?;
-        let jobs = self.get(&format!("{repo}/actions/runs/{run_id}/jobs"))?;
+        let jobs = self.get(&format!("/repos/{repo}/actions/runs/{run_id}/jobs"))?;
         let mut logs = String::new();
         for job in jobs["jobs"].as_array().context("missing jobs array")? {
             let id = job["id"].as_u64().context("missing job ID")?;
-            let path = format!("{repo}/actions/jobs/{id}/logs");
+            let path = format!("/repos/{repo}/actions/jobs/{id}/logs");
             logs.push_str(&self.send(Method::GET, &path, None)?.text()?);
         }
         Ok(logs)
     }
 }
 
-struct Stack {
+struct Compose {
     directory: PathBuf,
     passed: bool,
 }
 
-impl Stack {
-    /// Compose project name. Fixed so that the next run can clean up a stack
-    /// leaked by an interrupted run, at the cost of one run per host at a time.
+impl Compose {
+    /// Fixed so that the next run can clean up a project leaked by an
+    /// interrupted run, at the cost of one run per host at a time.
     const PROJECT: &str = "release-plz-gitea-test";
     /// Gitea requires registration tokens to be at least 32 characters long.
     const REGISTRATION_TOKEN: &str = "integration-test-runner-registration-token-not-a-secret";
 
     fn new() -> Result<Self> {
-        let stack = Self {
+        let compose = Self {
             directory: PathBuf::from(env!("CARGO_MANIFEST_DIR")),
             passed: false,
         };
         // `Drop` does not run when the previous run was killed.
-        stack.down().context("could not clean up a previous run")?;
-        Ok(stack)
+        compose
+            .down()
+            .context("could not clean up a previous run")?;
+        Ok(compose)
     }
 
     fn command(&self) -> Command {
@@ -268,14 +270,14 @@ impl Stack {
         ]))
     }
 
-    fn admin(&self) -> Command {
+    fn admin_user(&self) -> Command {
         let mut command = self.command();
         command.args(["exec", "-T", "gitea", "gitea", "admin", "user"]);
         command
     }
 }
 
-impl Drop for Stack {
+impl Drop for Compose {
     fn drop(&mut self) {
         if !self.passed {
             let _ = run(self.command().args(["logs", "--no-color", "--tail", "200"]));
