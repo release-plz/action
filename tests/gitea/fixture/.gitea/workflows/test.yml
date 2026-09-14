@@ -9,18 +9,20 @@ jobs:
     runs-on: integration
     steps:
       - name: Checkout fixture
+        # checkout v6+ keeps the token in a file that only applies to the
+        # workspace's .git directory, so release-plz's temporary copy of the
+        # repository cannot push: https://github.com/release-plz/release-plz/issues/2957
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          token: ${{ secrets.RELEASE_PLZ_TOKEN }}
+          # release-plz needs the v0.1.0 tag and the commits since it.
+          fetch-depth: 0
+
+      - name: Configure git user
         shell: bash
-        env:
-          GITEA_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
         run: |
-          git clone "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" .
-          git checkout -B main "$GITHUB_SHA"
           git config user.name "Release test"
           git config user.email "release-test@example.com"
-          # Persist credentials for release-plz's git push, as checkout does.
-          credentials=$(printf 'release-test:%s' "$GITEA_TOKEN" | base64 -w0)
-          echo "::add-mask::$credentials"
-          git config "http.${GITHUB_SERVER_URL}/.extraheader" "Authorization: Basic $credentials"
 
       - name: Run local action
         id: release-plz
