@@ -6,8 +6,11 @@ use std::{
     time::{Duration, Instant},
 };
 
-use anyhow::{Context, Result, bail, ensure};
-use reqwest::{Method, blocking::Client};
+use anyhow::{Context, Result, anyhow, bail, ensure};
+use reqwest::{
+    Method,
+    blocking::{Client, Response},
+};
 use serde_json::{Value, json};
 
 const USER: &str = "release-test";
@@ -60,16 +63,16 @@ fn action_on_gitea() -> Result<()> {
 fn test_release_pr(stack: &Stack, gitea: &Gitea, address: &str) -> Result<()> {
     let repo = format!("{USER}/forge");
     let path = format!("/repos/{repo}");
-    gitea.request(
+    gitea.send(
         Method::POST,
         "/user/repos",
-        json!({"name": "forge", "default_branch": "main"}),
+        Some(&json!({"name": "forge", "default_branch": "main"})),
     )?;
-    gitea.request(Method::PATCH, &path, json!({"has_actions": true}))?;
-    gitea.request(
+    gitea.send(Method::PATCH, &path, Some(&json!({"has_actions": true})))?;
+    gitea.send(
         Method::PUT,
         &format!("{path}/actions/secrets/RELEASE_PLZ_TOKEN"),
-        json!({"data": gitea.token}),
+        Some(&json!({"data": gitea.token})),
     )?;
 
     let temp = tempfile::tempdir()?;
@@ -144,7 +147,10 @@ fn wait_for_workflow(gitea: &Gitea, repo: &str, sha: &str) -> Result<()> {
     let deadline = Instant::now() + Duration::from_secs(900);
     let mut previous_status = Value::Null;
     let mut run_id = None;
-    while Instant::now() < deadline {
+    let failure = loop {
+        if Instant::now() >= deadline {
+            break anyhow!("Gitea workflow did not succeed within 15 minutes");
+        }
         let runs = gitea.get(&format!("{repo}/actions/runs"))?;
         let runs = runs["workflow_runs"]
             .as_array()
@@ -160,17 +166,19 @@ fn wait_for_workflow(gitea: &Gitea, repo: &str, sha: &str) -> Result<()> {
                 previous_status = status;
             }
             if run["status"] == "completed" {
-                if run["conclusion"] != "success" {
-                    gitea.print_job_logs(repo, run_id);
-                    bail!("workflow failed: {run}");
+                if run["conclusion"] == "success" {
+                    return Ok(());
                 }
-                return Ok(());
+                break anyhow!("workflow failed: {run}");
             }
         }
         thread::sleep(Duration::from_secs(3));
+    };
+    match gitea.job_logs(repo, run_id) {
+        Ok(logs) => println!("{logs}"),
+        Err(error) => eprintln!("Could not retrieve workflow logs: {error:#}"),
     }
-    gitea.print_job_logs(repo, run_id);
-    bail!("Gitea workflow did not succeed within 15 minutes")
+    Err(failure)
 }
 
 struct Gitea {
@@ -180,54 +188,39 @@ struct Gitea {
 }
 
 impl Gitea {
-    fn text(&self, method: Method, path: &str, data: Value) -> Result<String> {
+    fn send(&self, method: Method, path: &str, body: Option<&Value>) -> Result<Response> {
+        let description = format!("{method} {path}");
         let mut request = self
             .client
-            .request(method.clone(), format!("{}{path}", self.url))
+            .request(method, format!("{}{path}", self.url))
             .header("Authorization", format!("token {}", self.token));
-        if !data.is_null() {
-            request = request.json(&data);
+        if let Some(body) = body {
+            request = request.json(body);
         }
-        let response = request.send().with_context(|| format!("{method} {path}"))?;
+        let response = request.send().with_context(|| description.clone())?;
         let status = response.status();
-        let body = response.text()?;
-        ensure!(status.is_success(), "{method} {path}: {status} {body}");
-        Ok(body)
-    }
-
-    fn request(&self, method: Method, path: &str, data: Value) -> Result<Value> {
-        let body = self.text(method, path, data)?;
-        if body.is_empty() {
-            Ok(Value::Null)
-        } else {
-            serde_json::from_str(&body).with_context(|| format!("invalid JSON from {path}"))
+        if !status.is_success() {
+            bail!("{description}: {status} {}", response.text()?);
         }
+        Ok(response)
     }
 
     fn get(&self, path: &str) -> Result<Value> {
-        self.request(Method::GET, path, Value::Null)
+        self.send(Method::GET, path, None)?
+            .json()
+            .with_context(|| format!("invalid JSON from {path}"))
     }
 
-    fn print_job_logs(&self, repo: &str, run_id: Option<u64>) {
-        let result = (|| -> Result<()> {
-            let run_id = run_id.context("no workflow run was created")?;
-            let jobs = self.get(&format!("{repo}/actions/runs/{run_id}/jobs"))?;
-            for job in jobs["jobs"].as_array().context("missing jobs array")? {
-                let id = job["id"].as_u64().context("missing job ID")?;
-                println!(
-                    "{}",
-                    self.text(
-                        Method::GET,
-                        &format!("{repo}/actions/jobs/{id}/logs"),
-                        Value::Null
-                    )?
-                );
-            }
-            Ok(())
-        })();
-        if let Err(error) = result {
-            eprintln!("Could not retrieve workflow logs: {error:#}");
+    fn job_logs(&self, repo: &str, run_id: Option<u64>) -> Result<String> {
+        let run_id = run_id.context("no workflow run was created")?;
+        let jobs = self.get(&format!("{repo}/actions/runs/{run_id}/jobs"))?;
+        let mut logs = String::new();
+        for job in jobs["jobs"].as_array().context("missing jobs array")? {
+            let id = job["id"].as_u64().context("missing job ID")?;
+            let path = format!("{repo}/actions/jobs/{id}/logs");
+            logs.push_str(&self.send(Method::GET, &path, None)?.text()?);
         }
+        Ok(logs)
     }
 }
 
