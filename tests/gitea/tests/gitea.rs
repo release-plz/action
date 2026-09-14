@@ -30,7 +30,7 @@ fn action_on_gitea() -> Result<()> {
         "--username",
         USER,
         "--password",
-        &random_token()?,
+        "integration-test-password-not-a-secret",
         "--email",
         "release-test@example.com",
         "--must-change-password=false",
@@ -239,19 +239,24 @@ impl Gitea {
 
 struct Stack {
     directory: PathBuf,
-    project: String,
-    registration_token: String,
     passed: bool,
 }
 
 impl Stack {
+    /// Compose project name. Fixed so that the next run can clean up a stack
+    /// leaked by an interrupted run, at the cost of one run per host at a time.
+    const PROJECT: &str = "release-plz-gitea-test";
+    /// Gitea requires registration tokens to be at least 32 characters long.
+    const REGISTRATION_TOKEN: &str = "integration-test-runner-registration-token-not-a-secret";
+
     fn new() -> Result<Self> {
-        Ok(Self {
+        let stack = Self {
             directory: PathBuf::from(env!("CARGO_MANIFEST_DIR")),
-            project: format!("release-plz-test-{}", &random_token()?[..12]),
-            registration_token: random_token()?,
             passed: false,
-        })
+        };
+        // `Drop` does not run when the previous run was killed.
+        stack.down().context("could not clean up a previous run")?;
+        Ok(stack)
     }
 
     fn command(&self) -> Command {
@@ -259,9 +264,21 @@ impl Stack {
         command
             .args(["compose", "-f"])
             .arg(self.directory.join("compose.yml"))
-            .args(["-p", &self.project])
-            .env("GITEA_RUNNER_REGISTRATION_TOKEN", &self.registration_token);
+            .args(["-p", Self::PROJECT])
+            .env("GITEA_RUNNER_REGISTRATION_TOKEN", Self::REGISTRATION_TOKEN);
         command
+    }
+
+    fn down(&self) -> Result<()> {
+        run(self.command().args([
+            "down",
+            "--volumes",
+            "--rmi",
+            "local",
+            "--remove-orphans",
+            "--timeout",
+            "5",
+        ]))
     }
 
     fn admin(&self) -> Command {
@@ -276,24 +293,10 @@ impl Drop for Stack {
         if !self.passed {
             let _ = run(self.command().args(["logs", "--no-color", "--tail", "200"]));
         }
-        if let Err(error) = run(self.command().args([
-            "down",
-            "--volumes",
-            "--rmi",
-            "local",
-            "--remove-orphans",
-            "--timeout",
-            "5",
-        ])) {
+        if let Err(error) = self.down() {
             eprintln!("Could not clean up Gitea test containers: {error:#}");
         }
     }
-}
-
-fn random_token() -> Result<String> {
-    let mut bytes = [0; 24];
-    getrandom::fill(&mut bytes).context("could not generate test credentials")?;
-    Ok(bytes.iter().map(|byte| format!("{byte:02x}")).collect())
 }
 
 fn run(command: &mut Command) -> Result<()> {
