@@ -1,6 +1,6 @@
 use std::{
     env, fs,
-    path::{Path, PathBuf},
+    path::Path,
     process::{Command, Stdio},
     thread,
     time::{Duration, Instant},
@@ -14,6 +14,7 @@ use reqwest::{
 use serde_json::{Value, json};
 
 const USER: &str = "release-test";
+const DIRECTORY: &str = env!("CARGO_MANIFEST_DIR");
 
 #[test]
 fn action_on_gitea() -> Result<()> {
@@ -55,12 +56,12 @@ fn action_on_gitea() -> Result<()> {
         token,
         client: Client::builder().timeout(Duration::from_secs(30)).build()?,
     };
-    test_release_pr(&compose, &gitea).context("Gitea release PR test failed")?;
+    test_release_pr(&gitea).context("Gitea release PR test failed")?;
     compose.passed = true;
     Ok(())
 }
 
-fn test_release_pr(compose: &Compose, gitea: &Gitea) -> Result<()> {
+fn test_release_pr(gitea: &Gitea) -> Result<()> {
     let repo = format!("{USER}/forge");
     let path = format!("/repos/{repo}");
     gitea.send(
@@ -77,9 +78,10 @@ fn test_release_pr(compose: &Compose, gitea: &Gitea) -> Result<()> {
 
     let temp = tempfile::tempdir()?;
     let fixture = temp.path().join("fixture");
-    copy_dir(&compose.directory.join("fixture"), &fixture)?;
+    let directory = Path::new(DIRECTORY);
+    copy_dir(&directory.join("fixture"), &fixture)?;
     fs::copy(
-        compose.directory.join("../../action.yml"),
+        directory.join("../../action.yml"),
         fixture.join("action.yml"),
     )?;
     let git = || {
@@ -225,16 +227,12 @@ impl Gitea {
 }
 
 struct Compose {
-    directory: PathBuf,
     passed: bool,
 }
 
 impl Compose {
     fn new() -> Result<Self> {
-        let compose = Self {
-            directory: PathBuf::from(env!("CARGO_MANIFEST_DIR")),
-            passed: false,
-        };
+        let compose = Self { passed: false };
         // `Drop` does not run when the previous run was killed.
         compose
             .down()
@@ -246,7 +244,7 @@ impl Compose {
         let mut command = Command::new("docker");
         command
             .args(["compose", "-f"])
-            .arg(self.directory.join("compose.yml"))
+            .arg(Path::new(DIRECTORY).join("compose.yml"))
             // Overrides the top-level `name` in compose.yml, which `down` relies on.
             .env_remove("COMPOSE_PROJECT_NAME");
         command
