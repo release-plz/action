@@ -276,11 +276,15 @@ impl Drop for Stack {
         if !self.passed {
             let _ = run(self.command().args(["logs", "--no-color", "--tail", "200"]));
         }
-        if let Err(error) =
-            run(self
-                .command()
-                .args(["down", "--volumes", "--remove-orphans", "--timeout", "5"]))
-        {
+        if let Err(error) = run(self.command().args([
+            "down",
+            "--volumes",
+            "--rmi",
+            "local",
+            "--remove-orphans",
+            "--timeout",
+            "5",
+        ])) {
             eprintln!("Could not clean up Gitea test containers: {error:#}");
         }
     }
