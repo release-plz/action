@@ -1,0 +1,54 @@
+name: Test local action
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release-pr:
+    runs-on: integration
+    steps:
+      - name: Checkout fixture
+        shell: bash
+        env:
+          GITEA_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+        run: |
+          git clone "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" .
+          git checkout -B main "$GITHUB_SHA"
+          git config user.name "Release test"
+          git config user.email "release-test@example.com"
+          # Persist credentials for release-plz's git push, as checkout does.
+          credentials=$(printf 'release-test:%s' "$GITEA_TOKEN" | base64 -w0)
+          echo "::add-mask::$credentials"
+          git config "http.${GITHUB_SERVER_URL}/.extraheader" "Authorization: Basic $credentials"
+
+      - name: Run local action
+        id: release-plz
+        uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+        with:
+          command: release-pr
+          # FORGE_INPUTS
+
+      - name: Check action outputs against Gitea
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+          PR: ${{ steps.release-plz.outputs.pr }}
+          PRS: ${{ steps.release-plz.outputs.prs }}
+          PRS_CREATED: ${{ steps.release-plz.outputs.prs_created }}
+        run: |
+          set -euo pipefail
+          test "$PRS_CREATED" = true
+          jq -e --argjson pr "$PR" 'length == 1 and .[0] == $pr' <<< "$PRS"
+          jq -e --arg url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pulls/1" \
+            '.number == 1 and .html_url == $url and
+              .releases[0].package_name == "release-plz-gitea-test" and
+              .releases[0].version == "0.1.1"' <<< "$PR"
+          curl --fail-with-body --silent --show-error \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls/1" |
+            jq -e '.state == "open" and .base.ref == "main" and
+              .title == "chore: release v0.1.1" and
+              (.head.ref | startswith("release-plz-"))'

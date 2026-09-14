@@ -1,0 +1,39 @@
+services:
+  gitea:
+    image: gitea/gitea:1.27.3-rootless
+    environment:
+      GITEA__database__DB_TYPE: sqlite3
+      GITEA__security__INSTALL_LOCK: "true"
+      GITEA__server__ROOT_URL: http://gitea:3000/
+      GITEA__server__DISABLE_SSH: "true"
+      GITEA__service__DISABLE_REGISTRATION: "true"
+      GITEA__repository__DEFAULT_BRANCH: main
+      GITEA__actions__ENABLED: "true"
+      GITEA__actions__DEFAULT_ACTIONS_URL: github
+      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_REGISTRATION_TOKEN:?}
+    ports:
+      - "127.0.0.1::3000"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/healthz"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  runner:
+    build: .
+    depends_on:
+      gitea:
+        condition: service_healthy
+    environment:
+      GITEA_RUNNER_REGISTRATION_TOKEN: ${GITEA_RUNNER_REGISTRATION_TOKEN:?}
+    # Host execution here runs jobs inside this disposable container.
+    # No host Docker socket or workspace mount is needed.
+    command:
+      - /bin/bash
+      - -ec
+      - |
+        gitea-runner register --no-interactive \
+          --instance http://gitea:3000 \
+          --token "$$GITEA_RUNNER_REGISTRATION_TOKEN" \
+          --name integration --labels integration:host
+        exec gitea-runner daemon

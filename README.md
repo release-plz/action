@@ -6,6 +6,14 @@ Action for [release-plz](https://github.com/release-plz/release-plz).
 
 Learn how to use this action in the [docs](https://release-plz.dev/).
 
+## Tests
+
+Run the [Gitea integration test](tests/gitea/README.md) with Docker:
+
+```sh
+cargo test --manifest-path tests/gitea/Cargo.toml --locked -- --nocapture
+```
+
 <br>
 
 <sup>

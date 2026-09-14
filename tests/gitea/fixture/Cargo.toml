@@ -1,0 +1,6 @@
+[package]
+name = "release-plz-gitea-test"
+version = "0.1.0"
+edition = "2021"
+description = "Disposable Gitea integration test"
+license = "MIT"
