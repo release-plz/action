@@ -63,6 +63,17 @@
       groupName: 'Github Actions',
     },
     {
+      matchFileNames: [
+        'tests/gitea/fixture/.gitea/workflows/**',
+      ],
+      matchDepNames: [
+        'actions/checkout',
+      ],
+      // The fixture's checkout step explains why it must stay on v5:
+      // https://github.com/release-plz/release-plz/issues/2957
+      allowedVersions: '/^v5\\./',
+    },
+    {
       matchCategories: [
         'rust',
       ],
