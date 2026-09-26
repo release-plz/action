@@ -2,3 +2,4 @@
 .vscode
 .idea
 updater/target
+tests/gitea/target
