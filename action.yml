@@ -9,7 +9,7 @@ inputs:
     description: "Registry where the packages are stored. The registry name needs to be present in the Cargo config. If unspecified, crates.io is used."
     required: false
   config:
-    description: "Config file location. If not present, the default 'release-plz.toml' is used."
+    description: "Config file location. If not present, the first existing file among 'release-plz.toml', '.release-plz.toml', and '.config/release-plz.toml' is used, in that order."
     required: false
   forge:
     description: "Git forge/backend. Valid values: 'github', 'gitea'. Defaults to 'github'."
