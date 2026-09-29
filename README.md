@@ -6,6 +6,11 @@ Action for [release-plz](https://github.com/release-plz/release-plz).
 
 Learn how to use this action in the [docs](https://release-plz.dev/).
 
+## Tests
+
+See the [Gitea integration test](tests/gitea/README.md) for running the action
+end to end against a local Gitea in Docker.
+
 <br>
 
 <sup>
