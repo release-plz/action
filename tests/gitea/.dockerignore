@@ -1,0 +1,3 @@
+# The Dockerfile copies nothing from the build context, so never send the
+# harness's target/ directory to the daemon.
+*
