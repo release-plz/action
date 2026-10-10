@@ -256,9 +256,9 @@ dependencies = [
 
 [[package]]
 name = "git_cmd"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1c02cd6d9ee08628069b3ce5f80b524e8295756c8a3ac23a38e4defc695ccb5"
+checksum = "cb99395113cf52cfdb3276d670e1188864ba50fc69f8577241064d81a18671c0"
 dependencies = [
  "anyhow",
  "camino",
