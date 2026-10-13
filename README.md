@@ -10,7 +10,7 @@ Learn how to use this action in the [docs](https://release-plz.dev/).
 
 The action caches Cargo's registry index, downloaded crate archives, and Git
 dependency repositories by default. It uses `CARGO_HOME` when set, otherwise
-`$HOME/.cargo`. Credentials, installed tools, extracted sources, and build artifacts
+`~/.cargo`. Credentials, installed tools, extracted sources, and build artifacts
 are not cached, so this cache is unaffected by Rust 1.100's build-directory layout
 changes.
 

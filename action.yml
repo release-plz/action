@@ -75,14 +75,9 @@ runs:
       if: ${{ inputs.cache == 'true' }}
       id: cargo-home
       shell: bash
-      run: |
-        cargo_home="${CARGO_HOME:-$HOME/.cargo}"
-        mkdir -p "$cargo_home"
-        cargo_home="$(cd "$cargo_home" && pwd)"
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-          cargo_home="$(cygpath -m "$cargo_home")"
-        fi
-        printf 'path=%s\n' "$cargo_home" >> "$GITHUB_OUTPUT"
+      # Leave `~` for actions/cache to expand: like Cargo, it resolves the user's
+      # home directory natively, also on Windows.
+      run: echo "path=${CARGO_HOME:-~/.cargo}" >> "$GITHUB_OUTPUT"
     - name: Cache Cargo downloads
       if: ${{ inputs.cache == 'true' }}
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
