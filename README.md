@@ -8,7 +8,7 @@ Learn how to use this action in the [docs](https://release-plz.dev/).
 
 ## Caching
 
-Set the action input `cache: true` to cache Cargo's registry index, crate
+Set the `cache` input to `true` to cache Cargo's registry index, crate
 archives, and Git dependencies between runs (not credentials, installed tools,
 or build artifacts).
 
