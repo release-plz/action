@@ -90,9 +90,9 @@ runs:
           ${{ steps.cargo-home.outputs.path }}/registry/index
           ${{ steps.cargo-home.outputs.path }}/registry/cache
           ${{ steps.cargo-home.outputs.path }}/git/db
-        key: release-plz-cargo-downloads-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
+        key: release-plz-cargo-downloads-v1-${{ runner.os }}-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
         restore-keys: |
-          release-plz-cargo-downloads-v1-${{ runner.os }}-${{ runner.arch }}-
+          release-plz-cargo-downloads-v1-${{ runner.os }}-
     # Install cargo-semver-checks with install-action instead of cargo-binstall
     # to avoid checking crates-io
     - name: Install cargo-semver-checks
