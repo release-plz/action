@@ -6,8 +6,8 @@ inputs:
     description: "The release-plz command to run. Accepted values: `release-pr`, `release`. If unspecified, this action runs both these commands."
     required: false
   cache:
-    description: "Cache Cargo registry and Git dependency downloads. Set to `false` to disable."
-    default: "true"
+    description: "Cache Cargo registry and Git dependency downloads. Disabled by default because a poisoned cache could run code in the job that holds your publishing credentials. (Default: `false`)."
+    default: "false"
     required: false
   registry:
     description: "Registry where the packages are stored. The registry name needs to be present in the Cargo config. If unspecified, crates.io is used."

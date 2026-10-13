@@ -8,10 +8,15 @@ Learn how to use this action in the [docs](https://release-plz.dev/).
 
 ## Caching
 
-The action caches Cargo's registry index, crate archives, and Git dependencies
-(not credentials, installed tools, or build artifacts). Set the action input
-`cache: false` to disable it, for example if your workflow already caches
-`~/.cargo`.
+Set the action input `cache: true` to cache Cargo's registry index, crate
+archives, and Git dependencies between runs (not credentials, installed tools,
+or build artifacts).
+
+Caching is disabled by default because Cargo doesn't re-verify crate archives
+it finds in its cache: an entry poisoned by another workflow on your default
+branch could run code in the job that holds your publishing credentials. Only
+enable it if you trust every workflow (and the actions and dependencies they
+run) on your default branch.
 
 <br>
 
