@@ -5,6 +5,10 @@ inputs:
   command:
     description: "The release-plz command to run. Accepted values: `release-pr`, `release`. If unspecified, this action runs both these commands."
     required: false
+  cache:
+    description: "Cache Cargo registry and Git dependency downloads. Set to `false` to disable."
+    default: "true"
+    required: false
   registry:
     description: "Registry where the packages are stored. The registry name needs to be present in the Cargo config. If unspecified, crates.io is used."
     required: false
@@ -67,6 +71,31 @@ branding:
 runs:
   using: "composite"
   steps:
+    - name: Determine Cargo home
+      if: ${{ inputs.cache == 'true' }}
+      id: cargo-home
+      shell: bash
+      run: |
+        cargo_home="${CARGO_HOME:-$HOME/.cargo}"
+        mkdir -p "$cargo_home"
+        cargo_home="$(cd "$cargo_home" && pwd)"
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          cargo_home="$(cygpath -m "$cargo_home")"
+        fi
+        printf 'path=%s\n' "$cargo_home" >> "$GITHUB_OUTPUT"
+    - name: Cache Cargo downloads
+      if: ${{ inputs.cache == 'true' }}
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        # Cache downloads only: Cargo credentials, installed tools, extracted
+        # sources, and target/build directories are deliberately excluded.
+        path: |
+          ${{ steps.cargo-home.outputs.path }}/registry/index
+          ${{ steps.cargo-home.outputs.path }}/registry/cache
+          ${{ steps.cargo-home.outputs.path }}/git/db
+        key: release-plz-cargo-downloads-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
+        restore-keys: |
+          release-plz-cargo-downloads-v1-${{ runner.os }}-${{ runner.arch }}-
     # Install cargo-semver-checks with install-action instead of cargo-binstall
     # to avoid checking crates-io
     - name: Install cargo-semver-checks
