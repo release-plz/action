@@ -18,6 +18,9 @@ branch could run code in the job that holds your publishing credentials. Only
 enable it if you trust every workflow (and the actions and dependencies they
 run) on your default branch.
 
+The action uses `actions/cache`, so it needs a runner that supports Node 24
+actions (GitHub Actions runner 2.327.1 or later) even when caching is disabled.
+
 <br>
 
 <sup>
