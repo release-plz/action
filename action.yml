@@ -5,10 +5,6 @@ inputs:
   command:
     description: "The release-plz command to run. Accepted values: `release-pr`, `release`. If unspecified, this action runs both these commands."
     required: false
-  cache:
-    description: "Cache Cargo registry and Git dependency downloads. Disabled by default because a poisoned cache could run code in the job that holds your publishing credentials. (Default: `false`)."
-    default: "false"
-    required: false
   registry:
     description: "Registry where the packages are stored. The registry name needs to be present in the Cargo config. If unspecified, crates.io is used."
     required: false
@@ -46,6 +42,10 @@ inputs:
       the `--dry-run` flag is only added to the `release` command
       (the flag isn't added to the `release-pr` command).
       Useful if you're only interested in whether or not a release (pr) would be created."
+    required: false
+  cache:
+    description: "Cache Cargo registry and Git dependency downloads. Disabled by default because a poisoned cache could run code in the job that holds your publishing credentials. (Default: `false`)."
+    default: "false"
     required: false
 outputs:
   # Useful for when https://github.com/release-plz/release-plz/issues/1029 is implemented.
