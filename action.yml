@@ -80,6 +80,8 @@ runs:
       run: echo "path=${CARGO_HOME:-~/.cargo}" >> "$GITHUB_OUTPUT"
     - name: Cache Cargo downloads
       if: ${{ inputs.cache == 'true' }}
+      # Caching is only an optimization: never fail the release because of it.
+      continue-on-error: true
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         # Cache downloads only: Cargo credentials, installed tools, extracted
