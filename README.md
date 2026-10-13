@@ -14,9 +14,9 @@ or build artifacts).
 
 Caching is disabled by default because Cargo doesn't re-verify crate archives
 it finds in its cache: an entry poisoned by another workflow on your default
-branch (or the branch you release from) could run code in the job that holds
-your publishing credentials. Only enable it if you trust every workflow (and
-the actions and dependencies they run) on those branches.
+branch (or the branch you release from) could run code in the release-plz job,
+with access to its GitHub and registry tokens. Only enable it if you trust
+every workflow (and the actions and dependencies they run) on those branches.
 
 The action uses `actions/cache`, so it needs a runner that supports Node 24
 actions (GitHub Actions runner 2.327.1 or later) even when caching is disabled.
