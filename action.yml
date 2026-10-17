@@ -75,33 +75,14 @@ runs:
       if: ${{ inputs.cache == 'true' }}
       id: cargo-home
       shell: bash
-      continue-on-error: true
+      # Read CARGO_HOME in a shell: the `env` context misses variables set by the
+      # runner or the job container (e.g. `rust` Docker images). Leave `~` for
+      # actions/cache to expand: like Cargo, it uses USERPROFILE on Windows.
       run: |
-        cargo_home='~/.cargo'
-        if [[ -n "${CARGO_HOME:-}" ]]; then
-          # Cargo accepts relative paths and dot segments that actions/cache's
-          # glob parser rejects. Resolve custom homes before passing them on.
-          mkdir -p -- "$CARGO_HOME"
-          cd -P -- "$CARGO_HOME"
-          cargo_home=$PWD
-          if [[ "$RUNNER_OS" == 'Windows' ]]; then
-            cargo_home=$(cygpath -m "$cargo_home")
-          fi
-          # Cache paths are newline-delimited globs, not literal file paths.
-          if [[ "$cargo_home" == *$'\n'* || "$cargo_home" == *$'\r'* ]]; then
-            echo '::warning::Cannot cache a Cargo home containing line breaks.'
-            exit 1
-          fi
-          cargo_home=${cargo_home//\\/\\\\}
-          cargo_home=${cargo_home//\[/[[]}
-          cargo_home=${cargo_home//\?/[?]}
-          cargo_home=${cargo_home//\*/[*]}
-        fi
-        # Leave the default `~` for actions/cache to expand using the native home
-        # directory, also on Windows where Bash HOME may differ from USERPROFILE.
-        printf 'path=%s\n' "$cargo_home" >> "$GITHUB_OUTPUT"
+        cargo_home=${CARGO_HOME:-'~/.cargo'}
+        echo "path=$cargo_home" >> "$GITHUB_OUTPUT"
     - name: Cache Cargo downloads
-      if: ${{ inputs.cache == 'true' && steps.cargo-home.outcome == 'success' }}
+      if: ${{ inputs.cache == 'true' }}
       # Caching is only an optimization: never fail the release because of it.
       continue-on-error: true
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
