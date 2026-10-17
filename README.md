@@ -9,8 +9,8 @@ Learn how to use this action in the [docs](https://release-plz.dev/).
 ## Caching
 
 Set the `cache` input to `true` to cache Cargo's registry index, crate
-archives, and Git dependencies between runs (not credentials, installed tools,
-or build artifacts).
+archives, and Git dependencies between runs (not Cargo's credentials file,
+installed tools, or build artifacts).
 
 Caching is disabled by default because Cargo doesn't re-verify crate archives
 it finds in its cache: an entry poisoned by another workflow on your default
