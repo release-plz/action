@@ -93,9 +93,12 @@ runs:
           ${{ steps.cargo-home.outputs.path }}/registry/index
           ${{ steps.cargo-home.outputs.path }}/registry/cache
           ${{ steps.cargo-home.outputs.path }}/git/db
-        key: release-plz-cargo-downloads-v1-${{ runner.os }}-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
+        # The downloads don't depend on the architecture, but actions/cache stores
+        # paths relative to the workspace, which is on `C:` on Windows Arm64
+        # runners and on `D:` on Windows x64 runners.
+        key: release-plz-cargo-downloads-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml') }}
         restore-keys: |
-          release-plz-cargo-downloads-v1-${{ runner.os }}-
+          release-plz-cargo-downloads-v1-${{ runner.os }}-${{ runner.arch }}-
     # Install cargo-semver-checks with install-action instead of cargo-binstall
     # to avoid checking crates-io
     - name: Install cargo-semver-checks
