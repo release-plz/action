@@ -9,7 +9,8 @@ Learn how to use this action in the [docs](https://release-plz.dev/).
 ## Requirements
 
 The action needs a runner that supports Node 24 actions (GitHub Actions runner
-2.327.1 or later), because it uses `actions/cache` even when caching is disabled.
+2.327.1 or later): the runner loads its `actions/cache` step while setting up
+the job, even when caching is disabled.
 
 ## Caching
 
