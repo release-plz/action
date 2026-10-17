@@ -44,7 +44,11 @@ inputs:
       Useful if you're only interested in whether or not a release (pr) would be created."
     required: false
   cache:
-    description: "Cache Cargo registry and Git dependency downloads. Only enable it if you trust every workflow that runs on your default branch or release branch: a poisoned cache could run code in the release-plz job, with access to its GitHub and registry tokens. (Default: `false`)."
+    description:
+      "Cache Cargo registry and Git dependency downloads.
+      Only enable it if you trust every workflow that runs on your default branch or release branch:
+      a poisoned cache could run code in the release-plz job, with access to its GitHub and registry tokens.
+      (Default: `false`)."
     default: "false"
     required: false
 outputs:
