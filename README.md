@@ -6,6 +6,11 @@ Action for [release-plz](https://github.com/release-plz/release-plz).
 
 Learn how to use this action in the [docs](https://release-plz.dev/).
 
+## Requirements
+
+The action needs a runner that supports Node 24 actions (GitHub Actions runner
+2.327.1 or later), because it uses `actions/cache` even when caching is disabled.
+
 ## Caching
 
 Set the `cache` input to `true` to cache Cargo's registry index, crate
@@ -17,9 +22,6 @@ it finds in its cache: an entry poisoned by another workflow on your default
 branch (or the branch you release from) could run code in the release-plz job,
 with access to its GitHub and registry tokens. Only enable it if you trust
 every workflow (and the actions and dependencies they run) on those branches.
-
-The action uses `actions/cache`, so it needs a runner that supports Node 24
-actions (GitHub Actions runner 2.327.1 or later) even when caching is disabled.
 
 <br>
 
