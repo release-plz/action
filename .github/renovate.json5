@@ -86,9 +86,10 @@
       matchUpdateTypes: [
         'major',
       ],
-      // A new major can require a newer runner, even for users who don't
-      // enable caching: update "Requirements" in README.md before merging.
       automerge: false,
+      prBodyNotes: [
+        '⚠️ A new `actions/cache` major can require a newer runner, even when caching is disabled: update "Requirements" in `README.md` before merging.',
+      ],
     },
   ],
   // Receive any update that fixes security vulnerabilities.
