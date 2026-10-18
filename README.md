@@ -6,11 +6,19 @@ Action for [release-plz](https://github.com/release-plz/release-plz).
 
 Learn how to use this action in the [docs](https://release-plz.dev/).
 
-## Requirements
+## GitHub Enterprise Server
 
-The action needs a runner that supports Node 24 actions (GitHub Actions runner
-2.327.1 or later): the runner loads its `actions/cache` step while setting up
-the job, even when caching is disabled.
+The runner downloads the action's `actions/cache` step while setting up the
+job, even when caching is disabled. So on GitHub Enterprise Server, the action
+needs:
+
+- Runners that support Node 24 actions (version 2.327.1 or later). GHES 3.19
+  and later require newer runners than that.
+- The `actions/cache` version pinned in [`action.yml`](action.yml). Your
+  instance's bundled copy may not include it: update it with
+  [`actions-sync`](https://github.com/actions/actions-sync), or
+  [use `actions/cache` from GitHub.com](https://docs.github.com/en/enterprise-server@latest/admin/managing-github-actions-for-your-enterprise/managing-access-to-actions-from-githubcom/using-the-latest-version-of-the-official-bundled-actions)
+  through GitHub Connect.
 
 ## Caching
 

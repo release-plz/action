@@ -88,7 +88,7 @@
       ],
       automerge: false,
       prBodyNotes: [
-        '⚠️ A new `actions/cache` major can require a newer runner, even when caching is disabled: update "Requirements" in `README.md` before merging.',
+        '⚠️ A new `actions/cache` major can require a newer runner, even when caching is disabled: update "GitHub Enterprise Server" in `README.md` before merging.',
       ],
     },
   ],
