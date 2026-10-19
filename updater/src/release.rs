@@ -23,12 +23,8 @@ pub fn create_release() {
     run("git", &["tag", "-a", tag, "-m", tag]);
     run("git", &["push", "origin", tag]);
     run("gh", &["release", "create", tag, "--generate-notes"]);
-    move_minor_tag(&version, tag);
-}
-
-/// Point the `vX.Y` tag to the release just created,
-/// so that users of `release-plz/action@vX.Y` get the latest patch release.
-fn move_minor_tag(version: &semver::Version, tag: &str) {
+    // Point the `vX.Y` tag to the release just created,
+    // so that users of `release-plz/action@vX.Y` get the latest patch release.
     let minor_tag = &format!("v{}.{}", version.major, version.minor);
     let message = format!("Release {tag}");
     run("git", &["tag", "--force", "-a", minor_tag, "-m", &message]);
