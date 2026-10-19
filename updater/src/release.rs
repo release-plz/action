@@ -1,8 +1,6 @@
-use std::process::Command;
-
 use next_version::NextVersion;
 
-use crate::latest_release;
+use crate::{latest_release, run};
 
 fn next_tag() -> String {
     let mut action_tag = latest_release("release-plz/action");
@@ -25,18 +23,7 @@ fn next_tag() -> String {
 
 pub fn create_release() {
     let tag = &next_tag();
-    Command::new("git")
-        .args(["tag", "-a", tag, "-m", tag])
-        .output()
-        .unwrap();
-
-    Command::new("git")
-        .args(["push", "origin", tag])
-        .output()
-        .unwrap();
-
-    Command::new("gh")
-        .args(["release", "create", tag, "--generate-notes"])
-        .output()
-        .unwrap();
+    run("git", &["tag", "-a", tag, "-m", tag]);
+    run("git", &["push", "origin", tag]);
+    run("gh", &["release", "create", tag, "--generate-notes"]);
 }

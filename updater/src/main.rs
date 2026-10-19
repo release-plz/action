@@ -24,6 +24,22 @@ fn git_pull() {
     repo.git(&["pull"]).unwrap();
 }
 
+/// Run `program` with `args` and return its stdout. Panic if the command fails.
+pub fn run(program: &str, args: &[&str]) -> String {
+    let output = Command::new(program)
+        .args(args)
+        .output()
+        .unwrap_or_else(|e| panic!("failed to execute `{program}`: {e}"));
+    assert!(
+        output.status.success(),
+        "`{program} {}` failed\nstdout: {}\nstderr: {}",
+        args.join(" "),
+        String::from_utf8_lossy(&output.stdout).trim(),
+        String::from_utf8_lossy(&output.stderr).trim()
+    );
+    String::from_utf8(output.stdout).unwrap()
+}
+
 pub fn latest_release(repo: &str) -> String {
     let last_tag = Command::new("gh")
         .args(["release", "list", "--limit", "1", "--repo", repo])
