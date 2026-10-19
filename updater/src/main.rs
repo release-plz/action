@@ -32,8 +32,9 @@ pub fn run(program: &str, args: &[&str]) -> String {
         .unwrap_or_else(|e| panic!("failed to execute `{program}`: {e}"));
     assert!(
         output.status.success(),
-        "`{program} {}` failed: {}",
+        "`{program} {}` failed\nstdout: {}\nstderr: {}",
         args.join(" "),
+        String::from_utf8_lossy(&output.stdout).trim(),
         String::from_utf8_lossy(&output.stderr).trim()
     );
     String::from_utf8(output.stdout).unwrap()
