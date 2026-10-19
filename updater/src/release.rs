@@ -11,16 +11,15 @@ fn select_next_version() -> semver::Version {
     let next_patch = semver.increment_patch();
     let next_minor = semver.increment_minor();
     let next_major = semver.increment_major();
-    let next = inquire::Select::new("Version:", vec![next_patch, next_minor, next_major])
+    inquire::Select::new("Version:", vec![next_patch, next_minor, next_major])
         .prompt()
-        .unwrap();
-    println!("next tag: \"v{next}\"");
-    next
+        .unwrap()
 }
 
 pub fn create_release() {
     let version = select_next_version();
     let tag = &format!("v{version}");
+    println!("next tag: {tag}");
     run("git", &["tag", "-a", tag, "-m", tag]);
     run("git", &["push", "origin", tag]);
     run("gh", &["release", "create", tag, "--generate-notes"]);
