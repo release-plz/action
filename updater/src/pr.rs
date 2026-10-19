@@ -1,6 +1,4 @@
-use std::process::Command;
-
-use crate::ACTION_YML_PATH;
+use crate::{run, ACTION_YML_PATH};
 
 fn release_plz_version() -> String {
     let action_yml = std::fs::read_to_string(ACTION_YML_PATH).unwrap();
@@ -22,38 +20,17 @@ pub fn update_action_yml(release_plz_tag: &str) {
 pub fn create_pr(release_plz_tag: &str) {
     let commit_msg = format!("Update to {}", release_plz_tag);
     let branch = format!("update-{release_plz_tag}");
-    Command::new("git")
-        .args(["checkout", "-b", &branch])
-        .output()
-        .unwrap();
-    Command::new("git")
-        .args(["add", ACTION_YML_PATH])
-        .output()
-        .unwrap();
-    Command::new("git")
-        .args(["commit", "-m", &commit_msg])
-        .output()
-        .unwrap();
-    Command::new("git")
-        .args(["push", "origin", &branch])
-        .output()
-        .unwrap();
+    run("git", &["checkout", "-b", &branch]);
+    run("git", &["add", ACTION_YML_PATH]);
+    run("git", &["commit", "-m", &commit_msg]);
+    run("git", &["push", "origin", &branch]);
 
-    let output = Command::new("gh")
-        .args([
-            "pr",
-            "create",
-            "--fill",
-            "--repo",
-            "release-plz/action",
-        ])
-        .output()
-        .unwrap();
+    let output = run(
+        "gh",
+        &["pr", "create", "--fill", "--repo", "release-plz/action"],
+    );
 
-    Command::new("git")
-        .args(["checkout", "-"])
-        .output()
-        .unwrap();
+    run("git", &["checkout", "-"]);
 
-    println!("{}", String::from_utf8(output.stdout).unwrap());
+    println!("{output}");
 }
