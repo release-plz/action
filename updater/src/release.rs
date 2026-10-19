@@ -2,7 +2,7 @@ use next_version::NextVersion;
 
 use crate::{latest_release, run};
 
-fn next_version() -> semver::Version {
+fn select_next_version() -> semver::Version {
     let mut action_tag = latest_release("release-plz/action");
     println!("latest tag: {:?}", action_tag);
     // remove `v`
@@ -19,7 +19,7 @@ fn next_version() -> semver::Version {
 }
 
 pub fn create_release() {
-    let version = next_version();
+    let version = select_next_version();
     let tag = &format!("v{version}");
     run("git", &["tag", "-a", tag, "-m", tag]);
     run("git", &["push", "origin", tag]);
