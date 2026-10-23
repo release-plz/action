@@ -57,7 +57,7 @@ pub fn latest_release(repo: &str) -> String {
 }
 
 fn verify_release_plz_tag(release_plz_tag: &str) {
-    if !release_plz_tag.starts_with("0.3") {
+    if !release_plz_tag.starts_with("0.4") {
         panic!("latest tag `{release_plz_tag}` is not a release-plz tag. Probably you just need to wait until the release is published");
     }
     let release_plz_tag = format!("release-plz-v{}", release_plz_tag);
