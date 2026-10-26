@@ -256,9 +256,9 @@ dependencies = [
 
 [[package]]
 name = "git_cmd"
-version = "0.9.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb99395113cf52cfdb3276d670e1188864ba50fc69f8577241064d81a18671c0"
+checksum = "5d45e81024ad61f9b11512b5eb3ca36b8196ab955f2fccd15f3b01829566db30"
 dependencies = [
  "anyhow",
  "camino",
@@ -367,9 +367,9 @@ dependencies = [
 
 [[package]]
 name = "next_version"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d89b84ff0972faa3bb74d2ffe5979776f87e3bad64aa4b985eb71418eaa9a2df"
+checksum = "00a6a2b4d7d00c336f6d4f13845c85a92dac6491186b940803a7b4e29ebe7a0d"
 dependencies = [
  "git-conventional",
  "regex",
@@ -588,9 +588,9 @@ dependencies = [
 
 [[package]]
 name = "smallvec"
-version = "1.16.3"
+version = "1.16.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b3dc8af474f516a851ff4bd12db780f948b9250ad37211e4eec0bccea54e01b"
+checksum = "d0d5d4b1981b8bbbb7aed204cae5726d683d5d6ac7e74ec54122ea28f315e7c8"
 
 [[package]]
 name = "strsim"
