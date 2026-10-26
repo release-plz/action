@@ -79,6 +79,18 @@
       // Keep cargo-semver-checks updated in action.yml on every new release.
       enabled: true,
     },
+    {
+      matchDepNames: [
+        'actions/cache',
+      ],
+      matchUpdateTypes: [
+        'major',
+      ],
+      automerge: false,
+      prBodyNotes: [
+        '⚠️ A new `actions/cache` major can require a newer runner, even when caching is disabled: update "GitHub Enterprise Server" in `README.md` before merging.',
+      ],
+    },
   ],
   // Receive any update that fixes security vulnerabilities.
   // We need this because we disabled "patch" updates for Rust.
