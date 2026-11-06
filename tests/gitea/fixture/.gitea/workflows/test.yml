@@ -1,0 +1,48 @@
+name: Test local action
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release-pr:
+    runs-on: integration
+    steps:
+      - name: Checkout fixture
+        # checkout v6+ keeps the token in a file that only applies to the
+        # workspace's .git directory, so release-plz's temporary copy of the
+        # repository cannot push: https://github.com/release-plz/release-plz/issues/2957
+        # .github/renovate.json5 holds Renovate to v5 as well; drop that rule when bumping.
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          token: ${{ secrets.RELEASE_PLZ_TOKEN }}
+          # release-plz needs the v0.1.0 tag and the commits since it.
+          fetch-depth: 0
+
+      - name: Configure git user
+        run: |
+          git config user.name "Release test"
+          git config user.email "release-test@example.com"
+
+      - name: Run local action
+        id: release-plz
+        uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+        with:
+          command: release-pr
+          forge: gitea
+
+      - name: Check action outputs
+        env:
+          PR: ${{ steps.release-plz.outputs.pr }}
+          PRS: ${{ steps.release-plz.outputs.prs }}
+          PRS_CREATED: ${{ steps.release-plz.outputs.prs_created }}
+        run: |
+          set -euo pipefail
+          test "$PRS_CREATED" = true
+          jq -e --argjson pr "$PR" 'length == 1 and .[0] == $pr' <<< "$PRS"
+          jq -e --arg url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pulls/1" \
+            '.number == 1 and .html_url == $url and
+              .releases[0].package_name == "release-plz-gitea-test" and
+              .releases[0].version == "0.1.1"' <<< "$PR"
