@@ -11,6 +11,17 @@ on:
       - "**.md"
 
 jobs:
+  gitea:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Test action on Gitea
+        run: cargo test --manifest-path tests/gitea/Cargo.toml --locked -- --nocapture
+
   test:
     runs-on: ubuntu-latest
     permissions:
