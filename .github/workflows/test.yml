@@ -43,6 +43,7 @@ jobs:
           command: release
           project_manifest: .github/workflows/marco-test-one/Cargo.toml
           dry_run: true
+          cache: true
       - name: Assert no releases
         env:
           RELEASES: ${{ steps.release-plz.outputs.releases }}
