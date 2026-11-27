@@ -1,0 +1,3 @@
+[workspace]
+git_only = true
+semver_check = false
